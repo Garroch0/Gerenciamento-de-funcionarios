@@ -13,3 +13,17 @@
 	<stdlib.h>
 	"funcionarios.h"
 
+1566331091 source:/home/garrocho/Documentos/TRAB/Gerenciamento-de-funcionarios/Trabalho/main.c
+	<stdio.h>
+	<stdlib.h>
+	"funcionarios.h"
+
+1566331091 /home/garrocho/Documentos/TRAB/Gerenciamento-de-funcionarios/Trabalho/funcionarios.h
+
+1566334012 source:/home/garrocho/Documentos/TRAB/Gerenciamento-de-funcionarios/Trabalho/funcionarios.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"funcionarios.h"
+

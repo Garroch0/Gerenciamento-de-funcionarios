@@ -28,17 +28,13 @@ int verificaNome(char palavra[]){
     int i;
     int tamanho,cont=0;
     tamanho = strlen(palavra);
-    for(i=0;palavra[i]!='\0'; i++){
+    for(i=0;palavra[i]!=tamanho; i++){
         if (isspace(palavra[i])!=0){
             cont++;
         }
     }
     if (cont == tamanho){
         return 0;
-    }
-    for(i=0;i!=tamanho;i++){
-        if(isdigit(palavra[i])!=0)
-            return 0;
     }
     return 1;
 }
@@ -110,7 +106,7 @@ void cadastroDapartamento(){
 	// a+b => acrescenta dados ao final do arquivo ou cria
 	// um arquivo binária para leitura e escrita
 	FILE *arq_departamento = fopen("departamento.bin", "a+b");
- 
+
 	// testa a abertura do arquivo
 	if(arq_departamento == NULL)
 	{
@@ -125,7 +121,7 @@ void cadastroDapartamento(){
 	// pegamos a quantidade de bytes com a função ftell
 	cont_bytes = ftell(arq_departamento);
 	t_departamento departamento;
- 
+
 	if(cont_bytes == 0)
 	{
 		// se for 0, então não existe departamento cadastrado
@@ -135,51 +131,61 @@ void cadastroDapartamento(){
 	else
 	{
 		t_departamento ultimo_departamento;
- 
+
 		// utilizo a função fseek para posicionar o arquivo
 		// cont_bytes - sizeof(t_departamento) serve para posicionar o ponteiro
 		// para que possamos pegar o último departamento cadastrado
 		fseek(arq_departamento, cont_bytes - sizeof(t_departamento), SEEK_SET);
- 
+
 		// ler o departamento
 		fread(&ultimo_departamento, sizeof(t_departamento), 1, arq_departamento);
- 
+
 		// o ID do departamento é o ID do último departamento acrescido em 1
 		departamento.id = ultimo_departamento.id + 1;
 	}
 	// obtém o nome do departamento
 	// ^\n indica para pegar até a quebra de linha (enter)
 	// %*c descarta o enter
-	printf("\nDigite o nome do departamento: ");
+    setbuf(stdin, NULL);
+	do{
+    printf("\nDigite o nome do departamento: ");
 	scanf("%39[^\n]%*c", departamento.nome);
- 
+    if (verificaNome(departamento.nome))
+    {
+        break;
+    }else
+    {
+        printf("O campo nome nao pode ser vazio, insira novamente.");
+    }}while (1);
+
+
 	// uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
-    
+
     printf("\nDigite a sigla: ");
 	scanf("%9[^\n]%*c", departamento.sigla);
-   
+
     // uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
-    
+
     printf("\nDigite o ramal: ");
-	scanf("%[^\n]%d", departamento.ramal);
- 
-	// uma forma de "limpar" o buffer de entrada
+    scanf("%d", departamento.ramal);
+
+    // uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
- 
+
 	// se o ponteiro não estiver no final do arquivo nada é escrito
 	fseek(arq_departamento, 0, SEEK_END);
 	// escreve no arquivo
 	fwrite(&departamento, sizeof(t_departamento), 1, arq_departamento);
- 
+
 	// fecha o arquivo
 	fclose(arq_departamento);
- 
+
 	printf("\nDepartamento \"%s\" cadastrado com sucesso!\n", departamento.nome);
 	printf("\nPressione <Enter> para continuar...");
 	scanf("%*c"); // pega o Enter e descarta
- 
+
 	// uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
 }
