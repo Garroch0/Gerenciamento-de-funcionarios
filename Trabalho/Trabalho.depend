@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1566327745 source:/home/garrocho/Documentos/TRAB/Trabalho/funcionarios.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"funcionarios.h"
+
+1566327197 /home/garrocho/Documentos/TRAB/Trabalho/funcionarios.h
+
+1566327773 source:/home/garrocho/Documentos/TRAB/Trabalho/main.c
+	<stdio.h>
+	<stdlib.h>
+	"funcionarios.h"
+
