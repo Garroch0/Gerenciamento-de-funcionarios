@@ -30,7 +30,7 @@ typedef struct HistoricoFuncionario{
 }t_historicoFuncionario;
 
 typedef struct Departamento{
-    
+
     long id;
     char nome[40];
     long id_gerente;
@@ -56,7 +56,7 @@ typedef struct HistoricoSalario{
 }t_historicoSalario;
 
 char menu();
-int verificaNome();
+int verificaNome(char *palavra);
 int verificaDigito();
 int verificaData();
 int verificaCpf();

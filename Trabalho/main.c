@@ -23,8 +23,8 @@ int main(){
 		// testa o valor de "resp"
 		if(resp == '1')
 			cadastroDapartamento();
-		else if(resp == '2');
-			//cadastroFuncionario();
+		else if(resp == '2')
+			cadastroFuncionario();
 		else if(resp == '3');
 			//alterarFuncionario();
 		else if(resp == '4');

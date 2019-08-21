@@ -13,9 +13,9 @@ char menu(){
 
     char resp[2];
     printf("\n----------------------- Controle da Empresa Twomate --------------------------\n");
-        printf("1 - Cadastro de Dapartamento\n2 - Cadastro de Funcionário\n3 - Alterar Funcionário\n4 - Alterar Departamento Funcionário\n5 - Alterar o Gerente de um Funcinário\n6 - Consulta Funcionário Matrícula\n7 - Gerar Folha Pagamento\n8 - Alterar o salário de um funcionário\n9 - Reatório de Funcionários por departamento\n10 - Histórico Salário em um período\n11 - Gerentes de um departamento.\n0 - Sair");
-        printf("\nInsira a opção desejada: ");
-        scanf("%1s%*c", resp); // o *c pega o Enter e descarta
+    printf("1 - Cadastro de Dapartamento\n2 - Cadastro de Funcionário\n3 - Alterar Funcionário\n4 - Alterar Departamento Funcionário\n5 - Alterar o Gerente de um Funcinário\n6 - Consulta Funcionário Matrícula\n7 - Gerar Folha Pagamento\n8 - Alterar o salário de um funcionário\n9 - Reatório de Funcionários por departamento\n10 - Histórico Salário em um período\n11 - Gerentes de um departamento.\n0 - Sair");
+    printf("\nInsira a opção desejada: ");
+    scanf("%1s%*c", resp); // o *c pega o Enter e descarta
 
 	// uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
@@ -24,11 +24,11 @@ char menu(){
 	return resp[0];
 }
 
-int verificaNome(char palavra[]){
+int verificaNome(char *palavra){
     int i;
     int tamanho,cont=0;
     tamanho = strlen(palavra);
-    for(i=0;palavra[i]!=tamanho; i++){
+    for(i=0;palavra[i]!=palavra; i++){
         if (isspace(palavra[i])!=0){
             cont++;
         }
@@ -36,9 +36,14 @@ int verificaNome(char palavra[]){
     if (cont == tamanho){
         return 0;
     }
+    if (tamanho == 0)
+    {
+        return 0;
+    }
+
     return 1;
 }
-int verificaDigito(char entrada[]){
+int verificaDigito(char *entrada){
     int i;
     for(i=0;i!=strlen(entrada);i++){
         if(isdigit(entrada[i])==0)
@@ -46,7 +51,7 @@ int verificaDigito(char entrada[]){
     }
     return 1;
 }
-int verificaData(char data[]){
+int verificaData(char *data){
     int dia, mes, ano;
 
     sscanf(data,"%d%*c%d%*c%d",&dia,&mes,&ano);
@@ -120,7 +125,7 @@ void cadastroDapartamento(){
 	fseek(arq_departamento, 0, SEEK_END);
 	// pegamos a quantidade de bytes com a função ftell
 	cont_bytes = ftell(arq_departamento);
-	t_departamento departamento;
+    t_departamento departamento;
 
 	if(cont_bytes == 0)
 	{
@@ -143,19 +148,25 @@ void cadastroDapartamento(){
 		// o ID do departamento é o ID do último departamento acrescido em 1
 		departamento.id = ultimo_departamento.id + 1;
 	}
-	// obtém o nome do departamento
+
+    // uma forma de "limpar" o buffer de entrada
+	fseek(stdin, 0, SEEK_END); // não recomendável o uso
+
+    // obtém o nome do departamento
 	// ^\n indica para pegar até a quebra de linha (enter)
 	// %*c descarta o enter
-    setbuf(stdin, NULL);
+
 	do{
-    printf("\nDigite o nome do departamento: ");
-	scanf("%39[^\n]%*c", departamento.nome);
-    if (verificaNome(departamento.nome))
-    {
-        break;
-    }else
-    {
-        printf("O campo nome nao pode ser vazio, insira novamente.");
+        printf("\nDigite o nome do departamento: ");
+        scanf("%39[^\n]%*c", departamento.nome);
+        printf("Sucesso");
+        if (verificaNome(departamento.nome))
+        {
+            printf("Sucesso");
+            break;
+        }else
+        {
+            printf("\nO campo nome nao pode ser vazio, insira novamente.");
     }}while (1);
 
 
@@ -190,10 +201,113 @@ void cadastroDapartamento(){
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
 }
 void cadastroFuncionario(){
+     // abre o arquivo para escrita
+	// a+b => acrescenta dados ao final do arquivo ou cria
+	// um arquivo binária para leitura e escrita
+	FILE *arq_funcionario = fopen("funcionario.bin", "a+b");
+
+	// testa a abertura do arquivo
+	if(arq_funcionario == NULL)
+	{
+		printf("\nFalha ao abrir arquivo(s)!\n");
+		exit(1); // aborta o programa
+	}
+
+	int cont_bytes = 0;
+	// cont irá guardar o número total de bytes
+	// seta o ponteiro do arquivo para o final do arquivo
+	fseek(arq_funcionario, 0, SEEK_END);
+	// pegamos a quantidade de bytes com a função ftell
+	cont_bytes = ftell(arq_funcionario);
+	t_funcionario funcionario;
+
+	if(cont_bytes == 0)
+	{
+		// se for 0, então não existe funcionario cadastrado
+		// coloco o ID começando de 1
+		funcionario.id = 1;
+	}
+	else
+	{
+		t_funcionario ultimo_funcionario;
+
+		// utilizo a função fseek para posicionar o arquivo
+		// cont_bytes - sizeof(t_funcionario) serve para posicionar o ponteiro
+		// para que possamos pegar o último funcionario cadastrado
+		fseek(arq_funcionario, cont_bytes - sizeof(t_funcionario), SEEK_SET);
+
+		// ler o funcionario
+		fread(&ultimo_funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+
+		// o ID do funcionario é o ID do último funcionario acrescido em 1
+		funcionario.id = ultimo_funcionario.id + 1;
+	}
+	// obtém a matrícula do funcionario
+	// ^\n indica para pegar até a quebra de linha (enter)
+	// %*c descarta o enter
     printf("\nInsira a matricula: ");
-    printf("\nInsira o nome: ");
+    scanf("%9[^\n]%*c", funcionario.matricula);
+
+    // obtém o nome do funcionario
+	// ^\n indica para pegar até a quebra de linha (enter)
+	// %*c descarta o enter
+	do{
+        printf("\nDigite o nome do funcionario: ");
+        scanf("%59[^\n]%*c", funcionario.nome);
+        printf("Sucesso");
+        if (verificaNome(funcionario.nome))
+        {
+            printf("Sucesso");
+            break;
+        }else
+        {
+            printf("\nO campo nome nao pode ser vazio, insira novamente.");
+    }}while (1);
+
+	// uma forma de "limpar" o buffer de entrada
+	fseek(stdin, 0, SEEK_END); // não recomendável o uso
+
     printf("\nInsira a data de nascimento no estilo DD/MM/AAAA: ");
-    printf("\nInsira o CPF: ");
+	scanf("%11[^\n]%*c", funcionario.dataNascimento);
+    printf(funcionario.dataNascimento);
+    // uma forma de "limpar" o buffer de entrada
+	fseek(stdin, 0, SEEK_END); // não recomendável o uso
+
+    do
+    {
+        printf("\nInsira o CPF: ");
+        scanf("%s",funcionario.CPF);
+        if (verificaCpf(funcionario.CPF))
+        {
+            break;
+        }
+        else
+        {
+            printf("\nCPF inválido insira novamente.\n");
+        }
+
+
+    } while (1);
+
+
+    // uma forma de "limpar" o buffer de entrada
+	fseek(stdin, 0, SEEK_END); // não recomendável o uso
+
+	// se o ponteiro não estiver no final do arquivo nada é escrito
+	fseek(arq_funcionario, 0, SEEK_END);
+	// escreve no arquivo
+	fwrite(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+
+	// fecha o arquivo
+	fclose(arq_funcionario);
+
+	printf("\nfuncionario \"%s\" cadastrado com sucesso!\n", funcionario.nome);
+	printf("\nPressione <Enter> para continuar...");
+	scanf("%*c"); // pega o Enter e descarta
+
+	// uma forma de "limpar" o buffer de entrada
+	fseek(stdin, 0, SEEK_END); // não recomendável o uso
+/*
     printf("\nInsira o ID do departamento: ");
     printf("\nInsira o salario: ");
     printf("\nInsira a rua: ");
@@ -203,7 +317,7 @@ void cadastroFuncionario(){
     printf("\nInsira a cidade: ");
     printf("\nInsira a UF: ");
     printf("\nInsira o CEP: ");
-    printf("\nInsira o email: ");
+    printf("\nInsira o email: ");*/
 
 }
 
