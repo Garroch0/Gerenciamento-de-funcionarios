@@ -22,7 +22,7 @@ int main(){
 
 		// testa o valor de "resp"
 		if(resp == '1')
-			cadastroDapartamento();
+			cadastroDepartamento();
 		else if(resp == '2')
 			cadastroFuncionario();
 		else if(resp == '3');

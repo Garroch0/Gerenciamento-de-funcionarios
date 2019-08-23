@@ -28,7 +28,7 @@ int verificaNome(char *palavra){
     int i;
     int tamanho,cont=0;
     tamanho = strlen(palavra);
-    for(i=0;palavra[i]!=palavra; i++){
+    for(i=0;palavra[i]!='\0'; i++){
         if (isspace(palavra[i])!=0){
             cont++;
         }
@@ -36,11 +36,10 @@ int verificaNome(char *palavra){
     if (cont == tamanho){
         return 0;
     }
-    if (tamanho == 0)
-    {
-        return 0;
+    for(i=0;i!=tamanho;i++){
+        if(isdigit(palavra[i])!=0)
+            return 0;
     }
-
     return 1;
 }
 int verificaDigito(char *entrada){
@@ -57,19 +56,19 @@ int verificaData(char *data){
     sscanf(data,"%d%*c%d%*c%d",&dia,&mes,&ano);
     if ((dia >= 1 && dia <= 31) && (mes >= 1 && mes <= 12) && (ano >= 1800 && ano <= 2020)){ //verifica se os numeros sao validos
         if ((dia == 29 && mes == 2) && ((ano % 4) == 0)) //verifica se o ano é bissexto
-            return 0;
-        if (dia <= 28 && mes == 2) //verifica o mês de fevereiro
-            return 0;
-        if ((dia <= 30) && (mes == 4 || mes == 6 || mes == 9 || mes == 11))//verifica os meses de 30 dias
-            return 0;
-        if ((dia <=31) && (mes == 1 || mes == 3 || mes == 5 || mes == 7 || mes ==8 || mes == 10 || mes == 12)){ //verifica os meses de 31 dias
-            return 0;
-        }else
             return 1;
+        if (dia <= 28 && mes == 2) //verifica o mês de fevereiro
+            return 1;
+        if ((dia <= 30) && (mes == 4 || mes == 6 || mes == 9 || mes == 11))//verifica os meses de 30 dias
+            return 1;
+        if ((dia <=31) && (mes == 1 || mes == 3 || mes == 5 || mes == 7 || mes ==8 || mes == 10 || mes == 12)){ //verifica os meses de 31 dias
+            return 1;
+        }else
+            return 0;
     }
-    return 1;
+    return 0;
 }
-int verificaCpf(char cpf[]){
+int verificaCpf(char *cpf){
     int i, j, digito1 = 0, digito2 = 0;
     if(strlen(cpf) != 11)
         return 0;
@@ -106,8 +105,10 @@ int verificaCpf(char cpf[]){
     }
     return 1;
 }
-void cadastroDapartamento(){
-    // abre o arquivo para escrita
+
+void cadastroDepartamento()
+{
+	// abre o arquivo para escrita
 	// a+b => acrescenta dados ao final do arquivo ou cria
 	// um arquivo binária para leitura e escrita
 	FILE *arq_departamento = fopen("departamento.bin", "a+b");
@@ -118,14 +119,21 @@ void cadastroDapartamento(){
 		printf("\nFalha ao abrir arquivo(s)!\n");
 		exit(1); // aborta o programa
 	}
-
+	/*
+		NÃO é interessante que o usuário digite o ID do departamento
+    , esse
+		ID tem que ser gerado automático, então temos que pegar o
+		ID do último usuário cadastrado
+	*/
 	int cont_bytes = 0;
+
 	// cont irá guardar o número total de bytes
 	// seta o ponteiro do arquivo para o final do arquivo
 	fseek(arq_departamento, 0, SEEK_END);
 	// pegamos a quantidade de bytes com a função ftell
 	cont_bytes = ftell(arq_departamento);
-    t_departamento departamento;
+
+	t_departamento departamento;
 
 	if(cont_bytes == 0)
 	{
@@ -138,7 +146,7 @@ void cadastroDapartamento(){
 		t_departamento ultimo_departamento;
 
 		// utilizo a função fseek para posicionar o arquivo
-		// cont_bytes - sizeof(t_departamento) serve para posicionar o ponteiro
+		// cont_bytes - sizeof(t_departamento) serve para posicionar
 		// para que possamos pegar o último departamento cadastrado
 		fseek(arq_departamento, cont_bytes - sizeof(t_departamento), SEEK_SET);
 
@@ -148,42 +156,30 @@ void cadastroDapartamento(){
 		// o ID do departamento é o ID do último departamento acrescido em 1
 		departamento.id = ultimo_departamento.id + 1;
 	}
-
-    // uma forma de "limpar" o buffer de entrada
-	fseek(stdin, 0, SEEK_END); // não recomendável o uso
-
-    // obtém o nome do departamento
+	// obtém o nome do filme
 	// ^\n indica para pegar até a quebra de linha (enter)
 	// %*c descarta o enter
-
-	do{
-        printf("\nDigite o nome do departamento: ");
-        scanf("%39[^\n]%*c", departamento.nome);
-        printf("Sucesso");
-        if (verificaNome(departamento.nome))
-        {
-            printf("Sucesso");
-            break;
-        }else
-        {
-            printf("\nO campo nome nao pode ser vazio, insira novamente.");
-    }}while (1);
+    do
+    {
+    setbuf(stdin, NULL);
+    printf("\nDigite o nome do departamento: ");
+	scanf("%40[^\n]%*c", departamento.nome);
+    if (verificaNome(departamento.nome))
+        break;
+    else
+    {
+        printf("\nNome inválido insira novamente");
+    }} while (1);
 
 
-	// uma forma de "limpar" o buffer de entrada
-	fseek(stdin, 0, SEEK_END); // não recomendável o uso
-
+    setbuf(stdin, NULL);
     printf("\nDigite a sigla: ");
-	scanf("%9[^\n]%*c", departamento.sigla);
+	scanf("%10[^\n]%*c", departamento.sigla);
 
-    // uma forma de "limpar" o buffer de entrada
-	fseek(stdin, 0, SEEK_END); // não recomendável o uso
-
+    setbuf(stdin, NULL);
     printf("\nDigite o ramal: ");
-    scanf("%d", departamento.ramal);
+    scanf("%hu", &departamento.ramal);
 
-    // uma forma de "limpar" o buffer de entrada
-	fseek(stdin, 0, SEEK_END); // não recomendável o uso
 
 	// se o ponteiro não estiver no final do arquivo nada é escrito
 	fseek(arq_departamento, 0, SEEK_END);
@@ -193,7 +189,8 @@ void cadastroDapartamento(){
 	// fecha o arquivo
 	fclose(arq_departamento);
 
-	printf("\nDepartamento \"%s\" cadastrado com sucesso!\n", departamento.nome);
+    setbuf(stdin, NULL);
+	printf("\ndepartamento \"%s\" cadastrado com sucesso!\n", departamento.nome);
 	printf("\nPressione <Enter> para continuar...");
 	scanf("%*c"); // pega o Enter e descarta
 
@@ -245,50 +242,89 @@ void cadastroFuncionario(){
 	// obtém a matrícula do funcionario
 	// ^\n indica para pegar até a quebra de linha (enter)
 	// %*c descarta o enter
+	setbuf(stdin, NULL);
     printf("\nInsira a matricula: ");
     scanf("%9[^\n]%*c", funcionario.matricula);
 
     // obtém o nome do funcionario
-	// ^\n indica para pegar até a quebra de linha (enter)
-	// %*c descarta o enter
-	do{
-        printf("\nDigite o nome do funcionario: ");
-        scanf("%59[^\n]%*c", funcionario.nome);
-        printf("Sucesso");
-        if (verificaNome(funcionario.nome))
-        {
-            printf("Sucesso");
-            break;
-        }else
-        {
-            printf("\nO campo nome nao pode ser vazio, insira novamente.");
-    }}while (1);
-
-	// uma forma de "limpar" o buffer de entrada
-	fseek(stdin, 0, SEEK_END); // não recomendável o uso
-
-    printf("\nInsira a data de nascimento no estilo DD/MM/AAAA: ");
-	scanf("%11[^\n]%*c", funcionario.dataNascimento);
-    printf(funcionario.dataNascimento);
-    // uma forma de "limpar" o buffer de entrada
-	fseek(stdin, 0, SEEK_END); // não recomendável o uso
+    do
+    {
+    setbuf(stdin, NULL);
+    printf("\nDigite o nome do funcionario: ");
+    scanf("%40[^\n]%*c", funcionario.nome);
+    if (verificaNome(funcionario.nome))
+        break;
+    else
+    {
+        printf("\nNome inválido insira novamente");
+    }} while (1);
 
     do
     {
-        printf("\nInsira o CPF: ");
-        scanf("%s",funcionario.CPF);
-        if (verificaCpf(funcionario.CPF))
-        {
+        setbuf(stdin, NULL);
+        printf("\nInsira a data de nascimento no estilo DD/MM/AAAA: ");
+        scanf("%11[^\n]%*c", funcionario.dataNascimento);
+        //fgets(funcionario.dataNascimento,11,stdin);
+        if (verificaData(funcionario.dataNascimento)){
             break;
         }
         else
-        {
-            printf("\nCPF inválido insira novamente.\n");
+            printf("\nData inválida insira novamente");
+    }while(1);
+
+    do
+    {
+        setbuf(stdin, NULL);
+        printf("\nInsira um CPF válido: ");
+        // fgets(funcionario.CPF,12,stdin);
+        scanf("%12[^\n]%*c", funcionario.CPF);
+        printf("\n%d", strlen(funcionario.CPF));
+        if(verificaCpf(funcionario.CPF)){
+            break;
         }
+        else{
+            printf("\nCPF inválido insira novamente abaixo.");
+        }}while (1);
 
+    setbuf(stdin, NULL);
+    printf("\nDigite o ID do departamento: ");
+    scanf("%d",&funcionario.id_departamento);
 
-    } while (1);
+    setbuf(stdin, NULL);
+    printf("\nDigite o salario do funcionario: ");
+    scanf("%f",&funcionario.salario);
 
+    setbuf(stdin, NULL);
+    printf("\nDigite a rua do funcionario: ");
+    scanf("%40[^\n]%*c", funcionario.rua);
+
+    setbuf(stdin, NULL);
+    printf("\nDigite o bairro do funcionario: ");
+    scanf("%30[^\n]%*c", funcionario.bairro);
+
+    setbuf(stdin, NULL);
+    printf("\nDigite o numero: ");
+    scanf("%ld", &funcionario.Numero);
+
+    setbuf(stdin, NULL);
+    printf("\nDigite o complemento: ");
+    scanf("%30[^\n]%*c", funcionario.complemento);
+
+    setbuf(stdin, NULL);
+    printf("\nDigite a cidade do funcionario: ");
+    scanf("%40[^\n]%*c", funcionario.cidade);
+
+    setbuf(stdin, NULL);
+    printf("\nDigite o UF: ");
+    scanf("%3[^\n]%*c", funcionario.UF);
+
+    setbuf(stdin, NULL);
+    printf("\nDigite o CEP: ");
+    scanf("%9[^\n]%*c", funcionario.CEP);
+
+    setbuf(stdin, NULL);
+    printf("\nDigite o email do funcionario: ");
+    scanf("%40[^\n]%*c", funcionario.email);
 
     // uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
@@ -307,17 +343,4 @@ void cadastroFuncionario(){
 
 	// uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
-/*
-    printf("\nInsira o ID do departamento: ");
-    printf("\nInsira o salario: ");
-    printf("\nInsira a rua: ");
-    printf("\nInsira o bairro: ");
-    printf("\nInsira o numero da casa: ");
-    printf("\nInsira o complemento: ");
-    printf("\nInsira a cidade: ");
-    printf("\nInsira a UF: ");
-    printf("\nInsira o CEP: ");
-    printf("\nInsira o email: ");*/
-
 }
-

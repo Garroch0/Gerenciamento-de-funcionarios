@@ -58,8 +58,8 @@ typedef struct HistoricoSalario{
 char menu();
 int verificaNome(char *palavra);
 int verificaDigito();
-int verificaData();
-int verificaCpf();
+int verificaData(char *data);
+int verificaCpf(char *cpf);
 void cadastroDapartamento();
 void cadastroFuncionario();
 void alterarFuncionario();
