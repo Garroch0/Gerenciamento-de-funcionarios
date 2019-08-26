@@ -31,7 +31,7 @@ typedef struct HistoricoFuncionario{
 
 typedef struct Departamento{
 
-    long id;
+    long id_departamento;
     char nome[40];
     long id_gerente;
     char sigla[10];
@@ -60,6 +60,8 @@ int verificaNome(char *palavra);
 int verificaDigito();
 int verificaData(char *data);
 int verificaCpf(char *cpf);
+t_funcionario *procurar_funcionario(FILE *arq_funcionario, long id);
+t_departamento *procurar_departamento(FILE *arq_departamento, long id);
 void cadastroDapartamento();
 void cadastroFuncionario();
 void alterarFuncionario();

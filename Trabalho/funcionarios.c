@@ -9,6 +9,7 @@
 #define limpar_tela "clear"
 #endif
 
+//Imprime e recebe a uma opção válida
 char menu(){
 
     char resp[2];
@@ -24,6 +25,8 @@ char menu(){
 	return resp[0];
 }
 
+// Verifica se é um nome válido se o número de espaços for o mesmo tamanho da string é considerada vázia.
+// isspace verifica se o caracter passado é um espaço e retorna true ou false
 int verificaNome(char *palavra){
     int i;
     int tamanho,cont=0;
@@ -42,6 +45,7 @@ int verificaNome(char *palavra){
     }
     return 1;
 }
+//verifica se uma string contem dígitos
 int verificaDigito(char *entrada){
     int i;
     for(i=0;i!=strlen(entrada);i++){
@@ -50,6 +54,8 @@ int verificaDigito(char *entrada){
     }
     return 1;
 }
+
+// função genérica para verificar datas
 int verificaData(char *data){
     int dia, mes, ano;
 
@@ -68,6 +74,8 @@ int verificaData(char *data){
     }
     return 0;
 }
+
+//função genérica para verificar um CPF
 int verificaCpf(char *cpf){
     int i, j, digito1 = 0, digito2 = 0;
     if(strlen(cpf) != 11)
@@ -106,6 +114,64 @@ int verificaCpf(char *cpf){
     return 1;
 }
 
+t_departamento *obter_departamento(FILE *arq_departamento, long id_departamento)
+{
+	// vai para o início do arquivo
+	rewind(arq_departamento);
+
+	// loop para percorrer o arquivo
+	// busca linear O(n), como o ID é crescente é possível fazer uma busca binária O(log(n))
+	t_departamento *departamento;
+
+	// aloca espaço mesmo sem saber se o departamento existe
+	departamento = (t_departamento *)malloc(sizeof(t_departamento));
+	while(1)
+	{
+
+		// fread retorna o número de elementos lidos com sucesso
+		size_t result = fread(departamento, sizeof(t_departamento), 1, arq_departamento);
+
+		// se for 0, é porque não há mais elemento, então sai do loop
+		if(result == 0)
+			break;
+
+		// verifica se os ID's são iguais
+		if(departamento->id == id_departamento)
+			return departamento;
+	}
+	free(departamento); // libera recursos
+	return NULL;
+}
+
+t_funcionario *obter_funcionario(FILE *arq_funcionario, char matricula[])
+{
+	// vai para o início do arquivo
+	rewind(arq_funcionario);
+
+	t_funcionario *funcionario;
+
+	// aloca espaço mesmo sem saber se o funcionario existe
+	funcionario = (t_funcionario *)malloc(sizeof(t_funcionario));
+	while(1)
+	{
+
+		// fread retorna o número de elementos lidos com sucesso
+		size_t result = fread(funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+
+		// se for 0, é porque não há mais elemento, então sai do loop
+		if(result == 0)
+			break;
+
+		// verifica se os ID's são iguais
+		if(funcionario->matricula == matricula)
+			return funcionario;
+	}
+	free(funcionario); // libera recursos
+	return NULL;
+}
+
+
+//função que irá cadastrar os departamento e criar o arquivo departamento.bin caso não exista
 void cadastroDepartamento()
 {
 	// abre o arquivo para escrita
@@ -119,12 +185,8 @@ void cadastroDepartamento()
 		printf("\nFalha ao abrir arquivo(s)!\n");
 		exit(1); // aborta o programa
 	}
-	/*
-		NÃO é interessante que o usuário digite o ID do departamento
-    , esse
-		ID tem que ser gerado automático, então temos que pegar o
-		ID do último usuário cadastrado
-	*/
+	/*  ID tem que ser gerado automático, então temos que pegar o
+		ID do último usuário cadastrado*/
 	int cont_bytes = 0;
 
 	// cont irá guardar o número total de bytes
@@ -146,8 +208,8 @@ void cadastroDepartamento()
 		t_departamento ultimo_departamento;
 
 		// utilizo a função fseek para posicionar o arquivo
-		// cont_bytes - sizeof(t_departamento) serve para posicionar
 		// para que possamos pegar o último departamento cadastrado
+		// cont_bytes - sizeof(t_departamento) serve para posicionar
 		fseek(arq_departamento, cont_bytes - sizeof(t_departamento), SEEK_SET);
 
 		// ler o departamento
@@ -159,17 +221,15 @@ void cadastroDepartamento()
 	// obtém o nome do filme
 	// ^\n indica para pegar até a quebra de linha (enter)
 	// %*c descarta o enter
-    do
-    {
-    setbuf(stdin, NULL);
-    printf("\nDigite o nome do departamento: ");
-	scanf("%40[^\n]%*c", departamento.nome);
-    if (verificaNome(departamento.nome))
-        break;
-    else
-    {
-        printf("\nNome inválido insira novamente");
-    }} while (1);
+    do{
+        setbuf(stdin, NULL);
+        printf("\nDigite o nome do departamento: ");
+        scanf("%40[^\n]%*c", departamento.nome);
+        if (verificaNome(departamento.nome))
+            break;
+        else
+            printf("\nNome inválido insira novamente");
+    } while (1);
 
 
     setbuf(stdin, NULL);
@@ -198,7 +258,7 @@ void cadastroDepartamento()
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
 }
 void cadastroFuncionario(){
-     // abre o arquivo para escrita
+    // abre o arquivo para escrita
 	// a+b => acrescenta dados ao final do arquivo ou cria
 	// um arquivo binária para leitura e escrita
 	FILE *arq_funcionario = fopen("funcionario.bin", "a+b");
@@ -246,7 +306,7 @@ void cadastroFuncionario(){
     printf("\nInsira a matricula: ");
     scanf("%9[^\n]%*c", funcionario.matricula);
 
-    // obtém o nome do funcionario
+    // obtém o nome do funcionario e verifica se o nome está vazio e se a entrada são dígitos.
     do
     {
     setbuf(stdin, NULL);
@@ -259,6 +319,7 @@ void cadastroFuncionario(){
         printf("\nNome inválido insira novamente");
     }} while (1);
 
+    //valida a data de nascimento.
     do
     {
         setbuf(stdin, NULL);
@@ -272,13 +333,16 @@ void cadastroFuncionario(){
             printf("\nData inválida insira novamente");
     }while(1);
 
+
+    //Valida o CPF do funcionário
     do
     {
         setbuf(stdin, NULL);
         printf("\nInsira um CPF válido: ");
-        // fgets(funcionario.CPF,12,stdin);
-        scanf("%12[^\n]%*c", funcionario.CPF);
+        scanf("%11[^\n]%*c", funcionario.CPF);
         printf("\n%d", strlen(funcionario.CPF));
+        printf("\n%s", funcionario.CPF);
+
         if(verificaCpf(funcionario.CPF)){
             break;
         }
@@ -344,3 +408,69 @@ void cadastroFuncionario(){
 	// uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
 }
+/*void alterarFuncionario(){
+    // abre o arquivo para escrita
+	// a+b => acrescenta dados ao final do arquivo ou cria
+	// um arquivo binária para leitura e escrita
+	FILE *arq_funcionario = fopen("funcionario.bin", "a+b");
+
+	// testa a abertura do arquivo
+	if(arq_funcionario == NULL)
+	{
+		printf("\nFalha ao abrir arquivo(s)!\n");
+		exit(1); // aborta o programa
+	}
+
+	int cont_bytes = 0;
+	// cont irá guardar o número total de bytes
+	// seta o ponteiro do arquivo para o final do arquivo
+	fseek(arq_funcionario, 0, SEEK_END);
+	// pegamos a quantidade de bytes com a função ftell
+	cont_bytes = ftell(arq_funcionario);
+
+	if(cont_bytes == 0)
+	{
+		// se for 0, então não existe funcionario cadastrado
+		// coloco o ID começando de 1
+		funcionario.id = 1;
+	}
+	else
+	{
+		t_funcionario ultimo_funcionario;
+
+		// utilizo a função fseek para posicionar o arquivo
+		// cont_bytes - sizeof(t_funcionario) serve para posicionar o ponteiro
+		// para que possamos pegar o último funcionario cadastrado
+		fseek(arq_funcionario, cont_bytes - sizeof(t_funcionario), SEEK_SET);
+
+		// ler o funcionario
+		fread(&ultimo_funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+
+		// o ID do funcionario é o ID do último funcionario acrescido em 1
+		funcionario.id = ultimo_funcionario.id + 1;
+	}
+	// obtém a matrícula do funcionario
+	// ^\n indica para pegar até a quebra de linha (enter)
+	// %*c descarta o enter
+	setbuf(stdin, NULL);
+    printf("\nInsira o ID: ");
+    scanf("%ld", &funcionario.id);
+
+    // uma forma de "limpar" o buffer de entrada
+	fseek(stdin, 0, SEEK_END); // não recomendável o uso
+
+	// se o ponteiro não estiver no final do arquivo nada é escrito
+	fseek(arq_funcionario, 0, SEEK_END);
+	// escreve no arquivo
+	fwrite(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+
+	// fecha o arquivo
+	fclose(arq_funcionario);
+
+	printf("\nfuncionario \"%s\" cadastrado com sucesso!\n", funcionario.nome);
+	printf("\nPressione <Enter> para continuar...");
+	scanf("%*c"); // pega o Enter e descarta
+
+	// uma forma de "limpar" o buffer de entrada
+	fseek(stdin, 0, SEEK_END); // não recomendável o uso
+}*/
