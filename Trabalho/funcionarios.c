@@ -136,7 +136,7 @@ t_departamento *obter_departamento(FILE *arq_departamento, long id_departamento)
 			break;
 
 		// verifica se os ID's são iguais
-		if(departamento->id == id_departamento)
+		if(departamento->id_departamento == id_departamento)
 			return departamento;
 	}
 	free(departamento); // libera recursos
@@ -201,7 +201,7 @@ void cadastroDepartamento()
 	{
 		// se for 0, então não existe departamento cadastrado
 		// coloco o ID começando de 1
-		departamento.id = 1;
+		departamento.id_departamento = 1;
 	}
 	else
 	{
@@ -216,7 +216,7 @@ void cadastroDepartamento()
 		fread(&ultimo_departamento, sizeof(t_departamento), 1, arq_departamento);
 
 		// o ID do departamento é o ID do último departamento acrescido em 1
-		departamento.id = ultimo_departamento.id + 1;
+		departamento.id_departamento = ultimo_departamento.id_departamento + 1;
 	}
 	// obtém o nome do filme
 	// ^\n indica para pegar até a quebra de linha (enter)
@@ -257,7 +257,7 @@ void cadastroDepartamento()
 	// uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
 }
-void cadastroFuncionario(){
+void cadastroFuncionario(FILE *arq_departamento){
     // abre o arquivo para escrita
 	// a+b => acrescenta dados ao final do arquivo ou cria
 	// um arquivo binária para leitura e escrita
@@ -349,11 +349,28 @@ void cadastroFuncionario(){
         else{
             printf("\nCPF inválido insira novamente abaixo.");
         }}while (1);
+    
+    long id;
+    
+    do
+    {
+        setbuf(stdin, NULL);
+        printf("\nDigite o ID do departamento: ");
+        scanf("%li",&id);
+        if (existeDepartamento(arq_departamento,id))
+        {
+            funcionario.id_departamento = id;
+            break;
+        }
+        else
+        {
+            
+        }
+        
+        
 
-    setbuf(stdin, NULL);
-    printf("\nDigite o ID do departamento: ");
-    scanf("%d",&funcionario.id_departamento);
-
+    }while(1);
+    
     setbuf(stdin, NULL);
     printf("\nDigite o salario do funcionario: ");
     scanf("%f",&funcionario.salario);
@@ -408,69 +425,29 @@ void cadastroFuncionario(){
 	// uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
 }
-/*void alterarFuncionario(){
-    // abre o arquivo para escrita
-	// a+b => acrescenta dados ao final do arquivo ou cria
-	// um arquivo binária para leitura e escrita
-	FILE *arq_funcionario = fopen("funcionario.bin", "a+b");
+/*void alterarDepartamento(FILE *arq_departamento, long id_departamento){
 
-	// testa a abertura do arquivo
-	if(arq_funcionario == NULL)
-	{
-		printf("\nFalha ao abrir arquivo(s)!\n");
-		exit(1); // aborta o programa
-	}
-
-	int cont_bytes = 0;
-	// cont irá guardar o número total de bytes
-	// seta o ponteiro do arquivo para o final do arquivo
-	fseek(arq_funcionario, 0, SEEK_END);
-	// pegamos a quantidade de bytes com a função ftell
-	cont_bytes = ftell(arq_funcionario);
-
-	if(cont_bytes == 0)
-	{
-		// se for 0, então não existe funcionario cadastrado
-		// coloco o ID começando de 1
-		funcionario.id = 1;
-	}
-	else
-	{
-		t_funcionario ultimo_funcionario;
-
-		// utilizo a função fseek para posicionar o arquivo
-		// cont_bytes - sizeof(t_funcionario) serve para posicionar o ponteiro
-		// para que possamos pegar o último funcionario cadastrado
-		fseek(arq_funcionario, cont_bytes - sizeof(t_funcionario), SEEK_SET);
-
-		// ler o funcionario
-		fread(&ultimo_funcionario, sizeof(t_funcionario), 1, arq_funcionario);
-
-		// o ID do funcionario é o ID do último funcionario acrescido em 1
-		funcionario.id = ultimo_funcionario.id + 1;
-	}
-	// obtém a matrícula do funcionario
-	// ^\n indica para pegar até a quebra de linha (enter)
-	// %*c descarta o enter
-	setbuf(stdin, NULL);
-    printf("\nInsira o ID: ");
-    scanf("%ld", &funcionario.id);
-
-    // uma forma de "limpar" o buffer de entrada
-	fseek(stdin, 0, SEEK_END); // não recomendável o uso
-
-	// se o ponteiro não estiver no final do arquivo nada é escrito
-	fseek(arq_funcionario, 0, SEEK_END);
-	// escreve no arquivo
-	fwrite(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
-
-	// fecha o arquivo
-	fclose(arq_funcionario);
-
-	printf("\nfuncionario \"%s\" cadastrado com sucesso!\n", funcionario.nome);
-	printf("\nPressione <Enter> para continuar...");
-	scanf("%*c"); // pega o Enter e descarta
-
-	// uma forma de "limpar" o buffer de entrada
-	fseek(stdin, 0, SEEK_END); // não recomendável o uso
 }*/
+int existeDepartamento(FILE *arq_departamento, long id_departamento){
+	// vai para o início do arquivo, pois não sabemos a posição do ponteiro no arquivo
+	rewind(arq_departamento);
+
+	t_departamento departamento;
+	// loop para percorrer o arquivo
+	// busca linear O(n), como o ID é crescente é possível fazer uma busca binária O(log(n))
+	while(1)
+	{
+ 
+		// fread retorna o número de elementos lidos com sucesso
+		size_t result = fread(&departamento, sizeof(t_departamento), 1, arq_departamento);
+		// se for 0, é porque não há mais elemento, então sai do loop
+		if(result == 0)
+			break;
+ 
+		// verifica se o ID é igual
+		if(departamento.id_departamento == id_departamento)
+			return 0;
+	}
+	// se chegou aqui é porque NÃO existe o departamento, então retorna 0
+	return 1;
+}
