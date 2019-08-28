@@ -114,6 +114,7 @@ int verificaCpf(char *cpf){
     return 1;
 }
 
+
 t_departamento *obter_departamento(FILE *arq_departamento, long id_departamento)
 {
 	// vai para o início do arquivo
@@ -218,7 +219,7 @@ void cadastroDepartamento()
 		// o ID do departamento é o ID do último departamento acrescido em 1
 		departamento.id_departamento = ultimo_departamento.id_departamento + 1;
 	}
-	// obtém o nome do filme
+	// obtém o nome do departamento
 	// ^\n indica para pegar até a quebra de linha (enter)
 	// %*c descarta o enter
     do{
@@ -257,17 +258,26 @@ void cadastroDepartamento()
 	// uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
 }
-void cadastroFuncionario(FILE *arq_departamento){
-    // abre o arquivo para escrita
+void cadastroFuncionario(){
+    // abre o arquivo "para escrita
 	// a+b => acrescenta dados ao final do arquivo ou cria
 	// um arquivo binária para leitura e escrita
 	FILE *arq_funcionario = fopen("funcionario.bin", "a+b");
-
+	FILE *arq_departamento = fopen("departamento.bin","rb+");
 	// testa a abertura do arquivo
 	if(arq_funcionario == NULL)
 	{
 		printf("\nFalha ao abrir arquivo(s)!\n");
 		exit(1); // aborta o programa
+	}
+	if(arq_departamento == NULL)
+	{
+		arq_departamento = fopen("departamento.bin", "wb+");
+		if(arq_departamento == NULL)
+		{
+			printf("\nFalha ao criar arquivo(s)!\n");
+			exit(1); // aborta o programa
+		}
 	}
 
 	int cont_bytes = 0;
@@ -340,37 +350,30 @@ void cadastroFuncionario(FILE *arq_departamento){
         setbuf(stdin, NULL);
         printf("\nInsira um CPF válido: ");
         scanf("%11[^\n]%*c", funcionario.CPF);
-        printf("\n%d", strlen(funcionario.CPF));
-        printf("\n%s", funcionario.CPF);
-
         if(verificaCpf(funcionario.CPF)){
             break;
         }
         else{
             printf("\nCPF inválido insira novamente abaixo.");
         }}while (1);
-    
-    long id;
-    
-    do
-    {
-        setbuf(stdin, NULL);
-        printf("\nDigite o ID do departamento: ");
-        scanf("%li",&id);
-        if (existeDepartamento(arq_departamento,id))
-        {
-            funcionario.id_departamento = id;
-            break;
-        }
-        else
-        {
-            
-        }
-        
-        
 
-    }while(1);
-    
+	long id;
+	do
+	{
+		setbuf(stdin,NULL);
+		printf("Insira o ID do departamento: ");
+		scanf("%ld",&id);
+		if (existeDepartamento(arq_departamento, id)!=-1)
+		{
+			funcionario.id_departamento = id;
+			break;
+		}
+		else
+			printf("\nDepartamento nao existe.\n");
+			exit(1);
+	} while (1);
+
+
     setbuf(stdin, NULL);
     printf("\nDigite o salario do funcionario: ");
     scanf("%f",&funcionario.salario);
@@ -423,31 +426,120 @@ void cadastroFuncionario(FILE *arq_departamento){
 	scanf("%*c"); // pega o Enter e descarta
 
 	// uma forma de "limpar" o buffer de entrada
-	fseek(stdin, 0, SEEK_END); // não recomendável o uso
+	fseek(stdin, 0, SEEK_END); // não recomen	printf("\nfuncionario \"%s\" cadastrado com sucesso!\n", funcionario.nome);
+	printf("\nPressione <Enter> para continuar...");
+	scanf("%*c"); // pega o Enter e descartadável o uso
 }
-/*void alterarDepartamento(FILE *arq_departamento, long id_departamento){
-
-}*/
-int existeDepartamento(FILE *arq_departamento, long id_departamento){
+long existeDepartamento(FILE *arq_departamento, long id_departamento){
 	// vai para o início do arquivo, pois não sabemos a posição do ponteiro no arquivo
 	rewind(arq_departamento);
-
+	long posicao;
 	t_departamento departamento;
 	// loop para percorrer o arquivo
 	// busca linear O(n), como o ID é crescente é possível fazer uma busca binária O(log(n))
 	while(1)
 	{
- 
+
 		// fread retorna o número de elementos lidos com sucesso
 		size_t result = fread(&departamento, sizeof(t_departamento), 1, arq_departamento);
 		// se for 0, é porque não há mais elemento, então sai do loop
 		if(result == 0)
 			break;
- 
+
 		// verifica se o ID é igual
 		if(departamento.id_departamento == id_departamento)
-			return 0;
+			return posicao;
+		else
+			posicao++;
 	}
 	// se chegou aqui é porque NÃO existe o departamento, então retorna 0
-	return 1;
+	return -1;
 }
+int existeFuncionario(FILE *arq_funcionario, char *mat){
+	// vai para o início do arquivo, pois não sabemos a posição do ponteiro no arquivo
+	rewind(arq_funcionario);
+	long posicao;
+	t_funcionario funcionario;
+	// loop para percorrer o arquivo
+	// busca linear O(n), como o ID é crescente é possível fazer uma busca binária O(log(n))
+	while(1)
+	{
+
+		// fread retorna o número de elementos lidos com sucesso
+		size_t result = fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+		// se for 0, é porque não há mais elemento, então sai do loop
+		if(result == 0)
+			break;
+
+		// verifica se o ID é igual
+		if(strcmp(funcionario.nome, mat)!=0)
+			return posicao;
+		else
+			posicao++;
+	}
+	// se chegou aqui é porque NÃO existe o funcionario, então retorna 0
+	return -1;
+}
+void alterarDepartamento(){
+
+	long id_departamento;
+    // rb+ abre para leitura/atualização
+	FILE *arq_departamento = fopen("departamento.bin", "rb+");
+	FILE *arq_funcionario = fopen("funcionario.bin", "rb+");
+
+	// se não conseguiu abrir, então cria o arquivo
+	// wb+ abre para escrita/atualização (cria o arquivo se ele NÃO existir)
+	if(arq_departamento == NULL)
+	{
+		arq_departamento = fopen("departamento.bin", "wb+");
+		if(arq_departamento == NULL)
+		{
+			printf("\nFalha ao criar arquivo(s)!\n");
+			exit(1); // aborta o programa
+		}
+	}
+
+	if(arq_funcionario == NULL)
+	{
+		arq_funcionario = fopen("funcionario.bin", "wb+");
+		if(arq_funcionario == NULL)
+		{
+			printf("\nFalha ao criar arquivo(s)!\n");
+			exit(1); // aborta o programa
+		}
+	}
+
+	t_funcionario funcionario;
+	long posicao;
+	int sair;
+	// obtém o ID do departamento
+		do
+		{
+			printf("\nDigite o ID do departamento: ");
+			scanf("%ld", &id_departamento);
+			posicao = existeDepartamento(arq_departamento, id_departamento);
+			if (posicao!=-1){
+				setbuf(stdin,NULL);
+				printf("Insira o novo ID do departamento: ");
+				scanf("%ld",&id_departamento);
+				posicao = existeDepartamento(arq_departamento, id_departamento);
+				if (posicao!=-1){
+					funcionario.id_departamento = id_departamento;
+					printf("\nDepartamento alterado com sucesso!");
+				}
+				else
+					printf("\nDepartamento inexistente");
+			}
+			else
+				printf("\nDepartamento inexistente");
+			printf("\nDeseja sair? 1-SIM 2-NAO \n:");
+			scanf("%d",&sair);
+			} while (sair!=1);
+	setbuf(stdin, NULL);
+	printf("\nPressione <Enter> para continuar...");
+	scanf("%*c"); // pega o Enter e descarta
+
+
+
+}
+

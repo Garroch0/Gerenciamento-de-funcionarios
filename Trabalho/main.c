@@ -27,8 +27,8 @@ int main(){
 			cadastroFuncionario();
 		else if(resp == '3');
 			//alterarFuncionario();
-		else if(resp == '4');
-			//alterarDepartamento();
+		else if(resp == '4')
+			alterarDepartamento();
 		else if(resp == '5');
 			//alterarGerente();
 		else if(resp == '6');
