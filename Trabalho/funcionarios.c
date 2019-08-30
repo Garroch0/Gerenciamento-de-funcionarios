@@ -60,8 +60,11 @@ int verificaData(char *data){
     int dia, mes, ano;
 
     sscanf(data,"%d%*c%d%*c%d",&dia,&mes,&ano);
-    if ((dia >= 1 && dia <= 31) && (mes >= 1 && mes <= 12) && (ano >= 1800 && ano <= 2020)){ //verifica se os numeros sao validos
-        if ((dia == 29 && mes == 2) && ((ano % 4) == 0)) //verifica se o ano é bissexto
+    if ((dia >= 1 && dia <= 31) && (mes >= 1 && mes <= 12) && (ano >= 1960 && ano <= 2020)){ //verifica se os numeros sao validos
+		if(ano == 1960)
+			if (dia <= 20 && mes <= 6) //verifica a data mínimima que é 20/06/1960
+				return 0;
+		if ((dia == 29 && mes == 2) && ((ano % 4) == 0)) //verifica se o ano é bissexto
             return 1;
         if (dia <= 28 && mes == 2) //verifica o mês de fevereiro
             return 1;
@@ -114,7 +117,7 @@ int verificaCpf(char *cpf){
     return 1;
 }
 
-
+/*
 t_departamento *obter_departamento(FILE *arq_departamento, long id_departamento)
 {
 	// vai para o início do arquivo
@@ -143,8 +146,9 @@ t_departamento *obter_departamento(FILE *arq_departamento, long id_departamento)
 	free(departamento); // libera recursos
 	return NULL;
 }
+*/
 
-t_funcionario *obter_funcionario(FILE *arq_funcionario, char matricula[])
+/*t_funcionario *obter_funcionario(FILE *arq_funcionario, char matricula[])
 {
 	// vai para o início do arquivo
 	rewind(arq_funcionario);
@@ -171,7 +175,7 @@ t_funcionario *obter_funcionario(FILE *arq_funcionario, char matricula[])
 	return NULL;
 }
 
-
+*/
 //função que irá cadastrar os departamento e criar o arquivo departamento.bin caso não exista
 void cadastroDepartamento()
 {
@@ -312,7 +316,6 @@ void cadastroFuncionario(){
 	// obtém a matrícula do funcionario
 	// ^\n indica para pegar até a quebra de linha (enter)
 	// %*c descarta o enter
-	
 	do
 	{
 		setbuf(stdin, NULL);
@@ -473,7 +476,7 @@ int existeFuncionario(FILE *arq_funcionario, char *mat){
 			break;
 
 		// verifica se a matrícula é igual
-		if(strcmp(funcionario.nome, mat)==0)
+		if(strcmp(funcionario.nome,mat)==0)
 			return posicao;
 		else
 			posicao++;
@@ -513,20 +516,13 @@ void alterarFuncionario(){
 	t_funcionario funcionario;
 	long posicao;
 	int sair;
-	// obtém o ID do departamento
+	// obtém o ID do funcionario
 		do
 		{
 			printf("\nDigite a matricula do funcionario: ");
-			scanf("%40[^\n]%*c", matricula);
+			scanf("%10[^\n]%*c", matricula);
 			posicao = existeFuncionario(arq_departamento, matricula);
 			if (posicao=-1){
-				/*setbuf(stdin,NULL);
-				printf("Insira o novo ID do departamento: ");
-				scanf("%ld",&id_departamento);
-				posicao = existeDepartamento(arq_departamento, id_departamento);
-				if (posicao!=-1){
-					funcionario.id_departamento = id_departamento;
-					printf("\nDepartamento alterado com sucesso!");*/
 				    do
 					{
 					setbuf(stdin, NULL);
@@ -551,8 +547,6 @@ void alterarFuncionario(){
 						else
 							printf("\nData inválida insira novamente");
 					}while(1);
-
-
 					//Valida o CPF do funcionário
 					do
 					{
@@ -689,4 +683,3 @@ void alterarDepartamento(){
 	scanf("%*c"); // pega o Enter e descarta
 
 }
-
