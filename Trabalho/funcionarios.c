@@ -321,6 +321,7 @@ void cadastroFuncionario(){
 		setbuf(stdin, NULL);
 		printf("\nInsira a matricula: ");
 		scanf("%10[^\n]%*c", funcionario.matricula);
+		printf("%d", existeFuncionario(arq_funcionario, funcionario.matricula));
 		if (existeFuncionario(arq_funcionario, funcionario.matricula)==-1)
 			break;
 		else
@@ -462,24 +463,21 @@ long existeDepartamento(FILE *arq_departamento, long id_departamento){
 int existeFuncionario(FILE *arq_funcionario, char *mat){
 	// vai para o início do arquivo, pois não sabemos a posição do ponteiro no arquivo
 	rewind(arq_funcionario);
-	long posicao;
+	long posicao = 0;
 	t_funcionario funcionario;
 	// loop para percorrer o arquivo
-	// busca linear O(n), como o ID é crescente é possível fazer uma busca binária O(log(n))
-	while(1)
+	while(fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario))
 	{
-
-		// fread retorna o número de elementos lidos com sucesso
-		size_t result = fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
-		// se for 0, é porque não há mais elemento, então sai do loop
-		if(result == 0)
-			break;
-
+		// // fread retorna o número de elementos lidos com sucesso
+		// size_t result = fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+		// // se for 0, é porque não há mais elemento, então sai do loop
+		// if(result == 0)
+		// 	break;
 		// verifica se a matrícula é igual
-		if(strcmp(funcionario.nome,mat)==0)
-			return posicao;
-		else
+		if(strcmp(funcionario.matricula,mat))
 			posicao++;
+		else
+			return posicao;
 	}
 	// se chegou aqui é porque NÃO existe o funcionario, então retorna -1
 	return -1;
@@ -490,6 +488,7 @@ void alterarFuncionario(){
     // rb+ abre para leitura/atualização
 	FILE *arq_departamento = fopen("departamento.bin", "rb+");
 	FILE *arq_funcionario = fopen("funcionario.bin", "rb+");
+	FILE *arq_historicoFuncionario = fopen("historicoFuncionario.bin", "rb+");
 
 	// se não conseguiu abrir, então cria o arquivo
 	// wb+ abre para escrita/atualização (cria o arquivo se ele NÃO existir)
@@ -512,11 +511,21 @@ void alterarFuncionario(){
 			exit(1); // aborta o programa
 		}
 	}
+	if(arq_historicoFuncionario == NULL)
+	{
+		arq_funcionario = fopen("historicoFuncionario.bin", "wb+");
+		if(arq_funcionario == NULL)
+		{
+			printf("\nFalha ao criar arquivo(s)!\n");
+			exit(1); // aborta o programa
+		}
+	}
 
 	t_funcionario funcionario;
+	t_historicoFuncionario historico;
 	long posicao;
 	int sair;
-	// obtém o ID do funcionario
+	char data[11];
 		do
 		{
 			printf("\nDigite a matricula do funcionario: ");
@@ -537,13 +546,12 @@ void alterarFuncionario(){
 					//valida a data de nascimento.
 					do
 					{
+
 						setbuf(stdin, NULL);
 						printf("\nInsira a data de nascimento no estilo DD/MM/AAAA: ");
 						scanf("%11[^\n]%*c", funcionario.dataNascimento);
-						//fgets(funcionario.dataNascimento,11,stdin);
-						if (verificaData(funcionario.dataNascimento)){
+						if (verificaData(funcionario.dataNascimento))
 							break;
-						}
 						else
 							printf("\nData inválida insira novamente");
 					}while(1);
@@ -568,6 +576,7 @@ void alterarFuncionario(){
 						if (existeDepartamento(arq_departamento, id)!=-1)
 						{
 							funcionario.id_departamento = id;
+							historico.id_funcionario = id;
 							break;
 						}
 						else{
@@ -612,12 +621,31 @@ void alterarFuncionario(){
 					setbuf(stdin, NULL);
 					printf("\nDigite o email do funcionario: ");
 					scanf("%40[^\n]%*c", funcionario.email);
+
+					do
+					{
+						setbuf(stdin, NULL);
+						printf("\nInsira a data da criação no estilo DD/MM/AAAA: ");
+						scanf("%11[^\n]%*c", historico.data);
+						if (verificaData(historico.data))
+							break;
+						else
+							printf("\nData inválida insira novamente");
+					}while(1);
 			}
 			else
 				printf("\nMatricula inexistente");
 			printf("\nDeseja sair? 1-SIM 2-NAO \n:");
 			scanf("%d",&sair);
 			} while (sair!=1);
+
+	// escreve no arquivo
+	fwrite(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+
+	// fecha os arquivos
+	fclose(arq_funcionario);
+	fclose(arq_departamento);
+
 	setbuf(stdin, NULL);
 	printf("\nPressione <Enter> para continuar...");
 	scanf("%*c"); // pega o Enter e descarta
@@ -629,6 +657,7 @@ void alterarDepartamento(){
     // rb+ abre para leitura/atualização
 	FILE *arq_departamento = fopen("departamento.bin", "rb+");
 	FILE *arq_funcionario = fopen("funcionario.bin", "rb+");
+	FILE *arq_historicoDepartamento = fopen("historicoDepartamento.bin", "rb+");
 
 	// se não conseguiu abrir, então cria o arquivo
 	// wb+ abre para escrita/atualização (cria o arquivo se ele NÃO existir)
@@ -651,8 +680,19 @@ void alterarDepartamento(){
 			exit(1); // aborta o programa
 		}
 	}
+	if(arq_funcionario == NULL)
+	{
+		arq_funcionario = fopen("historicoDepartamento.bin", "wb+");
+		if(arq_funcionario == NULL)
+		{
+			printf("\nFalha ao criar arquivo(s)!\n");
+			exit(1); // aborta o programa
+		}
+	}
+
 
 	t_funcionario funcionario;
+	t_historicoDepartamento historico;
 	long posicao;
 	int sair;
 	// obtém o ID do departamento
@@ -667,7 +707,10 @@ void alterarDepartamento(){
 				scanf("%ld",&id_departamento);
 				posicao = existeDepartamento(arq_departamento, id_departamento);
 				if (posicao!=-1){
+					fseek(arq_departamento,posicao*sizeof(funcionario),SEEK_SET);
+            		fread(&funcionario,sizeof(funcionario),1,arq_funcionario);
 					funcionario.id_departamento = id_departamento;
+					historico.id_departamento = id_departamento;
 					printf("\nDepartamento alterado com sucesso!");
 				}
 				else
@@ -675,9 +718,29 @@ void alterarDepartamento(){
 			}
 			else
 				printf("\nDepartamento inexistente");
+			do
+			{
+				setbuf(stdin, NULL);
+				printf("\nInsira a data da alteração no estilo DD/MM/AAAA: ");
+				scanf("%11[^\n]%*c", historico.data);
+				if (verificaData(historico.data))
+					break;
+				else
+					printf("\nData inválida insira novamente");
+			}while(1);
+
 			printf("\nDeseja sair? 1-SIM 2-NAO \n:");
 			scanf("%d",&sair);
-			} while (sair!=1);
+		} while (sair!=1);
+
+	fseek(arq_departamento,posicao*sizeof(funcionario),SEEK_SET);
+	//escreve nos arquivos
+	fwrite(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+	fwrite(&historico, sizeof(t_historicoDepartamento), 1 ,arq_historicoDepartamento);
+	// fecha os arquivos
+	fclose(arq_funcionario);
+	fclose(arq_departamento);
+
 	setbuf(stdin, NULL);
 	printf("\nPressione <Enter> para continuar...");
 	scanf("%*c"); // pega o Enter e descarta
