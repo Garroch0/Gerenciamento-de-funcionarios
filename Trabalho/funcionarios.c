@@ -9,22 +9,55 @@
 #define limpar_tela "clear"
 #endif
 
-//Imprime e recebe a uma opção válida
-char menu(){
-
-    char resp[2];
-    printf("\n----------------------- Controle da Empresa Twomate --------------------------\n");
-    printf("1 - Cadastro de Dapartamento\n2 - Cadastro de Funcionário\n3 - Alterar Funcionário\n4 - Alterar Departamento Funcionário\n5 - Alterar o Gerente de um Funcinário\n6 - Consulta Funcionário Matrícula\n7 - Gerar Folha Pagamento\n8 - Alterar o salário de um funcionário\n9 - Reatório de Funcionários por departamento\n10 - Histórico Salário em um período\n11 - Gerentes de um departamento.\n0 - Sair");
-    printf("\nInsira a opção desejada: ");
-    scanf("%1s%*c", resp); // o *c pega o Enter e descarta
-
-	// uma forma de "limpar" o buffer de entrada
-	fseek(stdin, 0, SEEK_END); // não recomendável o uso
-
-	// se chegou aqui, é porque a opção é válida
-	return resp[0];
+int iniciar(){
+	
+	// char resp;
+	// loop infinito do programa
+	while(1)
+	{
+		// obtém a escolha do usuário
+		char resp[3];
+    	printf("\n----------------------- Controle da Empresa Twomate --------------------------\n");
+    	printf("1 - Cadastro de Dapartamento\n2 - Cadastro de Funcionário\n3 - Alterar Funcionário\n4 - Alterar Departamento Funcionário\n5 - Alterar o Gerente de um Funcinário\n6 - Consulta Funcionário Matrícula\n7 - Gerar Folha Pagamento\n8 - Alterar o salário de um funcionário\n9 - Reatório de Funcionários por departamento\n10 - Histórico Salário em um período\n11 - Gerentes de um departamento.\n0 - Sair");
+    	printf("\nInsira a opção desejada: ");
+    	scanf("%s%[^\n]*c", resp); // o *c pega o Enter e descarta
+		// testa o valor de "resp"
+		if(resp[1] == '0');
+			//historicoSalario();
+        else if(resp[1] == '1');
+			//gerenteDepartamento();
+		else if(resp[0] == '1')
+			cadastroDepartamento();
+		else if(resp[0] == '2')
+			cadastroFuncionario();
+		else if(resp[0] == '3')
+			alterarFuncionario();
+		else if(resp[0] == '4')
+			alterarDepartamento();
+		else if(resp[0] == '5');
+			//alterarGerente();
+		else if(resp[0] == '6');
+			//consultaFuncionario();
+		else if(resp[0] == '7');
+			//folhaPagamento();
+		else if(resp[0] == '8');
+			//alterarSalarioF();
+		else if(resp[0] == '9');
+			//relatorioFuncionario();
+        
+		else if(resp[0] == '0') // se for igual a 0, então sai do loop while
+			break;
+		else
+		{
+			printf("\nOpcao invalida! Pressione <Enter> para continuar...\n");
+			scanf("%*c");
+			// uma forma de "limpar" o buffer de entrada
+			fseek(stdin, 0, SEEK_END); // não recomendável o uso
+		}
+		system(limpar_tela);
+	}
+	return 0;
 }
-
 // Verifica se é um nome válido se o número de espaços for o mesmo tamanho da string é considerada vázia.
 // isspace verifica se o caracter passado é um espaço e retorna true ou false
 int verificaNome(char *palavra){
@@ -117,65 +150,53 @@ int verificaCpf(char *cpf){
     return 1;
 }
 
-/*
-t_departamento *obter_departamento(FILE *arq_departamento, long id_departamento)
-{
-	// vai para o início do arquivo
+long existeDepartamento(FILE *arq_departamento, long id_departamento){
+	// vai para o início do arquivo, pois não sabemos a posição do ponteiro no arquivo
 	rewind(arq_departamento);
-
+	long posicao;
+	t_departamento departamento;
 	// loop para percorrer o arquivo
 	// busca linear O(n), como o ID é crescente é possível fazer uma busca binária O(log(n))
-	t_departamento *departamento;
-
-	// aloca espaço mesmo sem saber se o departamento existe
-	departamento = (t_departamento *)malloc(sizeof(t_departamento));
 	while(1)
 	{
 
 		// fread retorna o número de elementos lidos com sucesso
-		size_t result = fread(departamento, sizeof(t_departamento), 1, arq_departamento);
-
+		size_t result = fread(&departamento, sizeof(t_departamento), 1, arq_departamento);
 		// se for 0, é porque não há mais elemento, então sai do loop
 		if(result == 0)
 			break;
 
-		// verifica se os ID's são iguais
-		if(departamento->id_departamento == id_departamento)
-			return departamento;
+		// verifica se o ID é igual
+		if(departamento.id_departamento == id_departamento)
+			return posicao;
+		else
+			posicao++;
 	}
-	free(departamento); // libera recursos
-	return NULL;
+	// se chegou aqui é porque NÃO existe o departamento, então retorna 0
+	return -1;
 }
-*/
-
-/*t_funcionario *obter_funcionario(FILE *arq_funcionario, char matricula[])
-{
-	// vai para o início do arquivo
+int existeFuncionario(FILE *arq_funcionario, char *mat){
+	// vai para o início do arquivo, pois não sabemos a posição do ponteiro no arquivo
 	rewind(arq_funcionario);
-
-	t_funcionario *funcionario;
-
-	// aloca espaço mesmo sem saber se o funcionario existe
-	funcionario = (t_funcionario *)malloc(sizeof(t_funcionario));
-	while(1)
+	long posicao = 0;
+	t_funcionario funcionario;
+	// loop para percorrer o arquivo
+	while(fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario))
 	{
-
-		// fread retorna o número de elementos lidos com sucesso
-		size_t result = fread(funcionario, sizeof(t_funcionario), 1, arq_funcionario);
-
-		// se for 0, é porque não há mais elemento, então sai do loop
-		if(result == 0)
-			break;
-
-		// verifica se os ID's são iguais
-		if(funcionario->matricula == matricula)
-			return funcionario;
+		// // fread retorna o número de elementos lidos com sucesso
+		// size_t result = fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+		// // se for 0, é porque não há mais elemento, então sai do loop
+		// if(result == 0)
+		// 	break;
+		// verifica se a matrícula é igual
+		if(strcmp(funcionario.matricula,mat))
+			posicao++;
+		else
+			return posicao;
 	}
-	free(funcionario); // libera recursos
-	return NULL;
+	// se chegou aqui é porque NÃO existe o funcionario, então retorna -1
+	return -1;
 }
-
-*/
 //função que irá cadastrar os departamento e criar o arquivo departamento.bin caso não exista
 void cadastroDepartamento()
 {
@@ -464,53 +485,6 @@ void cadastroFuncionario(){
 	printf("\nfuncionario \"%s\" cadastrado com sucesso!\n", funcionario.nome);
 	printf("\nPressione <Enter> para continuar...");
 	scanf("%*c"); // pega o Enter e descarta.
-}
-long existeDepartamento(FILE *arq_departamento, long id_departamento){
-	// vai para o início do arquivo, pois não sabemos a posição do ponteiro no arquivo
-	rewind(arq_departamento);
-	long posicao;
-	t_departamento departamento;
-	// loop para percorrer o arquivo
-	// busca linear O(n), como o ID é crescente é possível fazer uma busca binária O(log(n))
-	while(1)
-	{
-
-		// fread retorna o número de elementos lidos com sucesso
-		size_t result = fread(&departamento, sizeof(t_departamento), 1, arq_departamento);
-		// se for 0, é porque não há mais elemento, então sai do loop
-		if(result == 0)
-			break;
-
-		// verifica se o ID é igual
-		if(departamento.id_departamento == id_departamento)
-			return posicao;
-		else
-			posicao++;
-	}
-	// se chegou aqui é porque NÃO existe o departamento, então retorna 0
-	return -1;
-}
-int existeFuncionario(FILE *arq_funcionario, char *mat){
-	// vai para o início do arquivo, pois não sabemos a posição do ponteiro no arquivo
-	rewind(arq_funcionario);
-	long posicao = 0;
-	t_funcionario funcionario;
-	// loop para percorrer o arquivo
-	while(fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario))
-	{
-		// // fread retorna o número de elementos lidos com sucesso
-		// size_t result = fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
-		// // se for 0, é porque não há mais elemento, então sai do loop
-		// if(result == 0)
-		// 	break;
-		// verifica se a matrícula é igual
-		if(strcmp(funcionario.matricula,mat))
-			posicao++;
-		else
-			return posicao;
-	}
-	// se chegou aqui é porque NÃO existe o funcionario, então retorna -1
-	return -1;
 }
 void alterarFuncionario(){
 

@@ -55,13 +55,12 @@ typedef struct HistoricoSalario{
 
 }t_historicoSalario;
 
-char menu();
+
+int iniciar();
 int verificaNome(char *palavra);
 int verificaDigito();
 int verificaData(char *data);
 int verificaCpf(char *cpf);
-t_funcionario *procurar_funcionario(FILE *arq_funcionario, char matricula[]);
-t_departamento *procurar_departamento(FILE *arq_departamento, long id_departamento);
 long existeDepartamento(FILE *arq_departamento, long id_departamento);
 int existeFuncionario(FILE *arq_funcionario, char *mat);
 void cadastroDepartamento();
