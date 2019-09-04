@@ -102,7 +102,7 @@ void alterarDepartamento();
 void alterarGerente();
 void consultaFuncionario();
 void folhaPagamento();
-void alterarSalarioF();
+void alterarSalario();
 void relatorioFuncionario();
 void historicoSalario();
 void gerenteDepartamento();
