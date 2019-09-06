@@ -13,17 +13,18 @@
 	<stdlib.h>
 	"funcionarios.h"
 
-1567550029 source:/home/garrocho/Documentos/TRAB/Gerenciamento-de-funcionarios/Trabalho/main.c
+1567627067 source:/home/garrocho/Documentos/TRAB/Gerenciamento-de-funcionarios/Trabalho/main.c
 	<stdio.h>
 	<stdlib.h>
 	"funcionarios.h"
 
-1567564201 /home/garrocho/Documentos/TRAB/Gerenciamento-de-funcionarios/Trabalho/funcionarios.h
+1567627068 /home/garrocho/Documentos/TRAB/Gerenciamento-de-funcionarios/Trabalho/funcionarios.h
 
-1567550700 source:/home/garrocho/Documentos/TRAB/Gerenciamento-de-funcionarios/Trabalho/funcionarios.c
+1567777432 source:/home/garrocho/Documentos/TRAB/Gerenciamento-de-funcionarios/Trabalho/funcionarios.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<ctype.h>
+	<locale.h>
 	"funcionarios.h"
 

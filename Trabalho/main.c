@@ -13,8 +13,6 @@
     IF SUDESTE MG - Campus Barbacena - 2ºSemestre 2019.*/
 
 int main(){
-
-	iniciar();
 	
     return iniciar();
 }

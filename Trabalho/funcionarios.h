@@ -64,7 +64,6 @@ int iniciar();
 // Retorna verdadeiro caso dê tudo certo.
 int verificaNome(char *palavra);
 
-
 int verificaDigito();
 
 // Função para verificação de datas.
