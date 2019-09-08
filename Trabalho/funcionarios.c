@@ -24,8 +24,8 @@ int iniciar(){
 		// testa o valor de "resp"
 		if(resp[1] == '0');            //analiso primeiro as opções com dois dígitos depois analiso as opções com só um dígito.
 			//historicoSalario();
-        else if(resp[1] == '1');
-			//gerenteDepartamento();
+        else if(resp[1] == '1')
+			gerenteDepartamento();
 		else if(resp[0] == '1')
 			cadastroDepartamento();
 		else if(resp[0] == '2')
@@ -174,19 +174,43 @@ long existeDepartamento(FILE *arq_departamento, long id_departamento){
 	// se chegou aqui é porque NÃO existe o departamento, então retorna 0
 	return -1;
 }
+long existeFuncionarioID(FILE *arq_funcionario, long id_funcionario){
+	// vai para o início do arquivo, pois não sabemos a posição do ponteiro no arquivo
+	rewind(arq_funcionario);
+	long posicao;
+	t_funcionario funcionario;
+	// loop para percorrer o arquivo
+	// busca linear O(n), como o ID é crescente é possível fazer uma busca binária O(log(n))
+	while(1)
+	{
+		// fread retorna o número de elementos lidos com sucesso
+		size_t result = fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+		// se for 0, é porque não há mais elemento, então sai do loop
+		if(result == 0)
+			break;
+
+		// verifica se o ID é igual
+		if(funcionario.id == id_funcionario)
+			return posicao;
+		else
+			posicao++;
+	}
+	// se chegou aqui é porque NÃO existe o funcionario, então retorna 0
+	return -1;
+}
 int existeFuncionario(FILE *arq_funcionario, char *mat){
 	// vai para o início do arquivo, pois não sabemos a posição do ponteiro no arquivo
 	rewind(arq_funcionario);
 	long posicao = 0;
 	t_funcionario funcionario;
 	// loop para percorrer o arquivo
-	while(fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario))
+	while((1))
 	{
-		// // fread retorna o número de elementos lidos com sucesso
-		// size_t result = fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
-		// // se for 0, é porque não há mais elemento, então sai do loop
-		// if(result == 0)
-		// 	break;
+		// fread retorna o número de elementos lidos com sucesso
+		size_t result = fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+		// se for 0, é porque não há mais elemento, então sai do loop
+		if(result == 0)
+			break;
 		// verifica se a matrícula é igual
 		if(strcmp(funcionario.matricula,mat))
 			posicao++;
@@ -850,6 +874,76 @@ void alterarGerente(){
 	scanf("%*c"); // pega o Enter e descarta
 
 }
+
+
+/*				long posicao_historico;
+				while(1)
+				{
+				// fread retorna o número de elementos lidos com sucesso
+				size_t result = fread(&historico_antigo, sizeof(t_historicoSalario), 1, arq_historicoSalario);
+				// se for 0, é porque não há mais elemento, então sai do loop
+				if(result == 0)
+					break;
+				// verifica se o ID é igual
+				if(historico_antigo.id_funcionario == funcionario.id)
+					break;
+				else
+					posicao_historico++;
+				fseek(arq_historicoSalario,posicao_historico*sizeof(t_historicoSalario),SEEK_SET);
+				fread(&historico_antigo, sizeof(t_historicoSalario), 1, arq_historicoSalario);
+
+				//GERAR DOIS HISTORICOS DE SALÁRIO COM O MESMO ID DO FUNCIONÁRIO PARA SABER QUANDO ELE COMEÇOU E QUANDO ELE ALTEROU O SALÁRIO//
+			}*/
+
+void consultaFuncionario(){
+	// rb+ abre para leitura somente
+	FILE *arq_departamento = fopen("departamento.bin", "rb");
+	FILE *arq_funcionario = fopen("funcionario.bin", "rb");
+
+	if(arq_departamento || arq_funcionario == NULL)
+	{
+		printf("\nFalha ao abrir arquivo(s) ou ");
+		printf("Nenhum funcionário ou departamento cadastrado.\n");
+		printf("\nPressione <Enter> para continuar...");
+		setbuf(stdin, NULL);
+		scanf("%*c"); // pega o Enter e descarta
+		return;
+	}
+
+
+
+	fclose(arq_funcionario);
+	fclose(arq_departamento);
+
+	setbuf(stdin, NULL);
+	printf("\nPressione <Enter> para continuar...");
+	scanf("%*c"); // pega o Enter e descarta
+}
+void folhaPagamento(){
+	// rb abre para leitura somente
+	FILE *arq_funcionario = fopen("funcionario.bin", "rb");
+
+	if(arq_funcionario == NULL)
+	{
+		printf("\nFalha ao abrir arquivo(s) ou ");
+		printf("Nenhum funcionário cadastrado.\n");
+		printf("\nPressione <Enter> para continuar...");
+		setbuf(stdin, NULL);
+		scanf("%*c"); // pega o Enter e descarta
+		return;
+	}
+
+	t_funcionario funcionario;
+
+
+
+
+	fclose(arq_funcionario);
+
+	setbuf(stdin, NULL);
+	printf("\nPressione <Enter> para continuar...");
+	scanf("%*c"); // pega o Enter e descarta
+}
 void alterarSalario(){
 
     // rb+ abre para leitura/atualização
@@ -942,33 +1036,8 @@ void alterarSalario(){
 	scanf("%*c"); // pega o Enter e descarta
 }
 
-/*				long posicao_historico;
-				while(1)
-				{
-				// fread retorna o número de elementos lidos com sucesso
-				size_t result = fread(&historico_antigo, sizeof(t_historicoSalario), 1, arq_historicoSalario);
-				// se for 0, é porque não há mais elemento, então sai do loop
-				if(result == 0)
-					break;
-				// verifica se o ID é igual
-				if(historico_antigo.id_funcionario == funcionario.id)
-					break;
-				else
-					posicao_historico++;
-				fseek(arq_historicoSalario,posicao_historico*sizeof(t_historicoSalario),SEEK_SET);
-				fread(&historico_antigo, sizeof(t_historicoSalario), 1, arq_historicoSalario);
-
-				//GERAR DOIS HISTORICOS DE SALÁRIO COM O MESMO ID DO FUNCIONÁRIO PARA SABER QUANDO ELE COMEÇOU E QUANDO ELE ALTEROU O SALÁRIO//
-			}*/
-
-void consultaFuncionario();
-void folhaPagamento();
-void relatorioFuncionario();
-void historicoSalario();
-void gerenteDepartamento(){
-
-	long id_departamento, id;
-    // rb+ abre para leitura/atualização
+void relatorioFuncionario(){
+	// rb+ abre para leitura/atualização
 	FILE *arq_departamento = fopen("departamento.bin", "rb+");
 	FILE *arq_funcionario = fopen("funcionario.bin", "rb+");
 
@@ -993,26 +1062,88 @@ void gerenteDepartamento(){
 			exit(1); // aborta o programa
 		}
 	}
+	t_departamento departamento;
+
+
+	fclose(arq_funcionario);
+	fclose(arq_departamento);
+
+	setbuf(stdin, NULL);
+	printf("\nPressione <Enter> para continuar...");
+	scanf("%*c"); // pega o Enter e descarta
+}
+void historicoSalario(){
+
+    // rb+ abre para leitura somente
+	FILE *arq_funcionario = fopen("funcionario.bin", "rb");
+	FILE *arq_historicoSalario = fopen("historicoSalario.bin", "rb");
+
+	// testa a abertura do arquivo
+	if(arq_historicoSalario || arq_funcionario == NULL)
+	{
+		printf("\nFalha ao abrir arquivo(s) ou ");
+		printf("Nenhum funcionário cadastrado.\n");
+		setbuf(stdin, NULL);
+		printf("\nPressione <Enter> para continuar...");
+		scanf("%*c"); // pega o Enter e descarta
+ 
+		return;
+	}
+
+
+	t_funcionario funcionario;
+	t_historicoSalario historico;
+
+
+	fclose(arq_funcionario);
+	fclose(arq_historicoSalario);
+
+	setbuf(stdin, NULL);
+	printf("\nPressione <Enter> para continuar...");
+	scanf("%*c"); // pega o Enter e descarta
+}
+void gerenteDepartamento(){
+
+	long id_departamento;
+    // rb abre para leitura somente
+	FILE *arq_departamento = fopen("departamento.bin", "rb");
+	FILE *arq_funcionario = fopen("funcionario.bin", "rb");
+
+	// testa a abertura do arquivo
+	if(arq_departamento || arq_funcionario == NULL)
+	{
+		printf("\nFalha ao abrir arquivo(s) ou ");
+		printf("Nenhum funcionário ou departamento cadastrado.\n");
+		printf("\nPressione <Enter> para continuar...");
+		setbuf(stdin, NULL);
+		scanf("%*c"); // pega o Enter e descarta
+		return;
+	}
 
 	t_funcionario funcionario;
 	t_departamento departamento;
 	long posicao;
-
 	do
 	{
 		setbuf(stdin, NULL);
 		printf("\nDigite o ID do departamento: ");
 		scanf("%ld", &id_departamento);
 		posicao = existeDepartamento(arq_departamento, id_departamento);
+		fseek(arq_departamento,posicao*sizeof(departamento),SEEK_SET);
+		fread(&departamento,sizeof(departamento),1,arq_departamento);
+		printf("\nNão passou o IF");
 		if (posicao!=-1){
-			fseek(arq_departamento,posicao*sizeof(departamento),SEEK_SET);
-			fread(&departamento,sizeof(departamento),1,arq_departamento);
-			posicao = existeFuncionario(arq_funcionario, departamento.id_gerente);
-			fseek(arq_funcionario,posicao*sizeof(t_funcionario),SEEK_SET);
-			fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
-			// aqui eu já tenho as informações do gerente.
-
-			}
+			posicao = existeFuncionarioID(arq_funcionario, departamento.id_gerente);
+			if(posicao!=-1){
+				fseek(arq_funcionario,posicao*sizeof(t_funcionario),SEEK_SET);
+				fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);			
+				// fread retorna o número de elementos lidos com sucesso
+				// pelo menos um funcionario
+				printf("\nMatrícula: %s\nNome: %s\nData de nascimento: %s\nCPF: %s\nID do departamento: %ld\nSalário: %f\nRua: %s\nBairro %s\nNumero: %hu\nComplento: %s\nCidade: %s\nUF: %s\nCEP: %s\nEmail: %s\n\n",funcionario.matricula,funcionario.nome,funcionario.dataNascimento,funcionario.CPF,funcionario.id_departamento,funcionario.salario,funcionario.rua,funcionario.bairro,funcionario.Numero,funcionario.complemento,funcionario.cidade,funcionario.UF,funcionario.CEP,funcionario.email);
+				break;
+			}else
+			printf("\nNenhum funcionário cadastrado.\n");
+		}
 		else
 			printf("\nDepartamento inexistente");
 	}while(1);
@@ -1022,7 +1153,6 @@ void gerenteDepartamento(){
 	fclose(arq_departamento);
 
 	setbuf(stdin, NULL);
-	printf("\nDepartamento do funcionario \"%s\" alterado com sucesso!\n", funcionario.nome);
 	printf("\nPressione <Enter> para continuar...");
 	scanf("%*c"); // pega o Enter e descarta
 
