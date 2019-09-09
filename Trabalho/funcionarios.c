@@ -36,14 +36,14 @@ int iniciar(){
 			alterarDepartamento();
 		else if(resp[0] == '5')
 			alterarGerente();
-		else if(resp[0] == '6');
-			//consultaFuncionario();
+		else if(resp[0] == '6')
+			consultaFuncionario();
 		else if(resp[0] == '7');
 			//folhaPagamento();
 		else if(resp[0] == '8')
 			alterarSalario();
-		else if(resp[0] == '9');
-			//relatorioFuncionario();
+		else if(resp[0] == '9')
+			relatorioFuncionario();
 
 		else if(resp[0] == '0') // se for igual a 0, então sai do loop while
 			break;
@@ -224,6 +224,7 @@ int existeFuncionario(FILE *arq_funcionario, char *mat){
 //função que irá cadastrar os departamento e criar o arquivo departamento.bin caso não exista
 void cadastroDepartamento()
 {
+	system(limpar_tela);
 	// abre o arquivo para escrita
 	// a+b => acrescenta dados ao final do arquivo ou cria
 	// um arquivo binária para leitura e escrita
@@ -295,7 +296,6 @@ void cadastroDepartamento()
 		if (verificaDigito(numero))
 		{
 			sscanf(numero, "%hu", &departamento.ramal);
-			printf("%hu", departamento.ramal);
 			break;
 		}
 		else
@@ -319,6 +319,7 @@ void cadastroDepartamento()
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
 }
 void cadastroFuncionario(){
+	system(limpar_tela);
     // abre o arquivo "para escrita
 	// a+b => acrescenta dados ao final do arquivo ou cria
 	// um arquivo binária para leitura e escrita
@@ -466,11 +467,12 @@ void cadastroFuncionario(){
 
     setbuf(stdin, NULL);
     printf("\nDigite a rua do funcionario: ");
-    scanf("%40[^\n]%*c", funcionario.rua);
+    scanf("%39[^\n]%*c", funcionario.rua);
 
     setbuf(stdin, NULL);
+	scanf("%*[^\n]"); scanf("%*c");
     printf("\nDigite o bairro do funcionario: ");
-    scanf("%30[^\n]%*c", funcionario.bairro);
+    scanf("%29[^\n]%*c", funcionario.bairro);
 
     setbuf(stdin, NULL);
     printf("\nDigite o numero: ");
@@ -478,23 +480,23 @@ void cadastroFuncionario(){
 
     setbuf(stdin, NULL);
     printf("\nDigite o complemento: ");
-    scanf("%30[^\n]%*c", funcionario.complemento);
+    scanf("%29[^\n]%*c", funcionario.complemento);
 
     setbuf(stdin, NULL);
     printf("\nDigite a cidade do funcionario: ");
-    scanf("%40[^\n]%*c", funcionario.cidade);
+    scanf("%39[^\n]%*c", funcionario.cidade);
 
     setbuf(stdin, NULL);
     printf("\nDigite o UF: ");
-    scanf("%3[^\n]%*c", funcionario.UF);
+    scanf("%2[^\n]%*c", funcionario.UF);
 
     setbuf(stdin, NULL);
     printf("\nDigite o CEP: ");
-    scanf("%9[^\n]%*c", funcionario.CEP);
+    scanf("%8[^\n]%*c", funcionario.CEP);
 
     setbuf(stdin, NULL);
     printf("\nDigite o email do funcionario: ");
-    scanf("%40[^\n]%*c", funcionario.email);
+    scanf("%39[^\n]%*c", funcionario.email);
 
     // uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
@@ -504,7 +506,7 @@ void cadastroFuncionario(){
 	fseek(arq_historicoSalario, 0, SEEK_END);
 	// escreve no arquivo
 	fwrite(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
-	fwrite(&historico, sizeof(historico), 1, arq_historicoSalario);
+	fwrite(&historico, sizeof(t_historicoSalario), 1, arq_historicoSalario);
 
 	// fecha o arquivo
 	fclose(arq_funcionario);
@@ -516,7 +518,7 @@ void cadastroFuncionario(){
 	scanf("%*c"); // pega o Enter e descarta.
 }
 void alterarFuncionario(){
-
+	system(limpar_tela);
     // rb+ abre para leitura/atualização
 	FILE *arq_departamento = fopen("departamento.bin", "rb+");
 	FILE *arq_funcionario = fopen("funcionario.bin", "rb+");
@@ -563,7 +565,7 @@ void alterarFuncionario(){
 		setbuf(stdin, NULL);
 		printf("\nDigite a matricula do funcionario: ");
 		scanf("%10[^\n]%*c", funcionario.matricula);
-		posicao = existeFuncionario(arq_departamento, funcionario.matricula);
+		posicao = existeFuncionario(arq_funcionario, funcionario.matricula);
 		if (posicao!=-1){
 			fseek(arq_funcionario,posicao*sizeof(t_funcionario),SEEK_SET);
 			fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
@@ -701,7 +703,7 @@ void alterarFuncionario(){
 }
 
 void alterarDepartamento(){
-
+	system(limpar_tela);
 	long id_departamento;
     // rb+ abre para leitura/atualização
 	FILE *arq_departamento = fopen("departamento.bin", "rb+");
@@ -779,7 +781,7 @@ void alterarDepartamento(){
 			printf("\nData inválida insira novamente");
 	}while(1);
 
-	fseek(arq_funcionario,posicao*sizeof(funcionario),SEEK_SET);
+	fseek(arq_funcionario,posicao*sizeof(t_funcionario),SEEK_SET);
 	fseek(arq_historicoFuncionario, 0, SEEK_END);
 	//escreve nos arquivos
 	fwrite(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
@@ -796,7 +798,7 @@ void alterarDepartamento(){
 
 }
 void alterarGerente(){
-
+	system(limpar_tela);
 	long id_departamento;
     // rb+ abre para leitura/atualização
 	FILE *arq_departamento = fopen("departamento.bin", "rb+");
@@ -834,8 +836,8 @@ void alterarGerente(){
 			scanf("%ld", &id_departamento);
 			posicao = existeDepartamento(arq_departamento, id_departamento);
 			if (posicao!=-1){
-				fseek(arq_departamento,posicao*sizeof(departamento),SEEK_SET);
-            	fread(&departamento,sizeof(departamento),1,arq_departamento);
+				fseek(arq_departamento,posicao*sizeof(t_departamento),SEEK_SET);
+            	fread(&departamento,sizeof(t_departamento),1,arq_departamento);
 				setbuf(stdin,NULL);
 				printf("Insira o ID do gerente: ");
 				scanf("%ld",&departamento.id_gerente);
@@ -896,30 +898,65 @@ void alterarGerente(){
 			}*/
 
 void consultaFuncionario(){
-	// rb+ abre para leitura somente
+	system(limpar_tela);
+	long id_departamento;
+    // rb abre para leitura somente
 	FILE *arq_departamento = fopen("departamento.bin", "rb");
 	FILE *arq_funcionario = fopen("funcionario.bin", "rb");
 
+	// testa a abertura do arquivo
 	if(arq_departamento || arq_funcionario == NULL)
 	{
 		printf("\nFalha ao abrir arquivo(s) ou ");
-		printf("Nenhum funcionário ou departamento cadastrado.\n");
+		printf("nenhum funcionário ou departamento cadastrado.\n");
 		printf("\nPressione <Enter> para continuar...");
 		setbuf(stdin, NULL);
 		scanf("%*c"); // pega o Enter e descarta
 		return;
 	}
 
+	t_funcionario funcionario;
+	t_departamento departamento;
+	long posicao;
+	char matricula[10];
 
+	setbuf(stdin, NULL);
+	printf("\nDigite a matricula do funcionário: ");
+	scanf("%9[^\n]%*c", matricula);
+	posicao = existeFuncionario(arq_funcionario, matricula);
+	if (posicao!=-1)
+	{
+		fseek(arq_funcionario,posicao*sizeof(t_funcionario),SEEK_SET);		
+		fread(&funcionario,sizeof(t_funcionario),1,arq_funcionario);
+		if(existeDepartamento(arq_departamento,funcionario.id_departamento!=-1)){
+			printf("\nNome do departamento: %s",departamento.nome);
+			printf("\nMatrícula: %s\nNome do funcionário: %s\nData de nascimento: %s\nCPF: %s\nID do departamento: %ld\nSalário: %f\nRua: %s\nBairro %s\nNumero: %hu\nComplento: %s\nCidade: %s\nUF: %s\nCEP: %s\nEmail: %s\n\n",funcionario.matricula,funcionario.nome,funcionario.dataNascimento,funcionario.CPF,funcionario.id_departamento,funcionario.salario,funcionario.rua,funcionario.bairro,funcionario.Numero,funcionario.complemento,funcionario.cidade,funcionario.UF,funcionario.CEP,funcionario.email);
+		}
+		else
+		{
+			printf("\nFuncionário não contém um departamento");
+		}
+		
+		
+	}
+	else
+	{
+		printf("\nMatricula inixistente.");
+	}
+	
+	
 
+	// fecha os arquivos
 	fclose(arq_funcionario);
 	fclose(arq_departamento);
 
 	setbuf(stdin, NULL);
 	printf("\nPressione <Enter> para continuar...");
 	scanf("%*c"); // pega o Enter e descarta
+
 }
 void folhaPagamento(){
+	system(limpar_tela);
 	// rb abre para leitura somente
 	FILE *arq_funcionario = fopen("funcionario.bin", "rb");
 
@@ -945,7 +982,7 @@ void folhaPagamento(){
 	scanf("%*c"); // pega o Enter e descarta
 }
 void alterarSalario(){
-
+	system(limpar_tela);
     // rb+ abre para leitura/atualização
 	FILE *arq_departamento = fopen("departamento.bin", "rb+");
 	FILE *arq_funcionario = fopen("funcionario.bin", "rb+");
@@ -1000,6 +1037,7 @@ void alterarSalario(){
 			setbuf(stdin, NULL);
 			printf("Insira o salario do funcionario: ");
 			scanf("%f",&funcionario.salario);
+			break;
 		}
 		else
 			printf("\nFuncionario inexistente");
@@ -1020,7 +1058,7 @@ void alterarSalario(){
 			printf("\nData inválida insira novamente");
 	}while(1);
 
-	fseek(arq_funcionario,posicao*sizeof(funcionario),SEEK_SET);
+	fseek(arq_funcionario,posicao*sizeof(t_funcionario),SEEK_SET);
 	fseek(arq_historicoSalario, 0, SEEK_END);
 	//escreve nos arquivos
 	fwrite(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
@@ -1037,43 +1075,67 @@ void alterarSalario(){
 }
 
 void relatorioFuncionario(){
-	// rb+ abre para leitura/atualização
-	FILE *arq_departamento = fopen("departamento.bin", "rb+");
-	FILE *arq_funcionario = fopen("funcionario.bin", "rb+");
+	system(limpar_tela);
+	// rb abre para leitura somente
+	FILE *arq_departamento = fopen("departamento.bin", "rb");
+	FILE *arq_funcionario = fopen("funcionario.bin", "rb");
 
-	// se não conseguiu abrir, então cria o arquivo
-	// wb+ abre para escrita/atualização (cria o arquivo se ele NÃO existir)
-	if(arq_departamento == NULL)
+	// testa a abertura do arquivo
+	if( arq_funcionario == NULL)
 	{
-		arq_departamento = fopen("departamento.bin", "wb+");
-		if(arq_departamento == NULL)
-		{
-			printf("\nFalha ao criar arquivo(s)!\n");
-			exit(1); // aborta o programa
-		}
-	}
-
-	if(arq_funcionario == NULL)
-	{
-		arq_funcionario = fopen("funcionario.bin", "wb+");
-		if(arq_funcionario == NULL)
-		{
-			printf("\nFalha ao criar arquivo(s)!\n");
-			exit(1); // aborta o programa
-		}
+		printf("\nFalha ao abrir arquivo(s) ou ");
+		printf("Nenhum funcionário ou departamento cadastrado.\n");
+		printf("\nPressione <Enter> para continuar...");
+		setbuf(stdin, NULL);
+		scanf("%*c"); // pega o Enter e descarta
+		return;
 	}
 	t_departamento departamento;
-
-
+	t_funcionario funcionario;
+	
+	rewind(arq_departamento);
+	while(fread(&departamento,sizeof(t_departamento),1,arq_departamento)==1){
+		printf("\nCódigo do departamento: %ld\nNome do departamento: %s\n",departamento.id_departamento, departamento.nome);
+		rewind(arq_funcionario);  //coloco os ponteiros no começo do arquivo
+		while(fread(&funcionario,sizeof(t_funcionario),1,arq_funcionario)==1)
+			if(funcionario.id_departamento == departamento.id_departamento){
+				printf("\nMatrícula: %s\t\t Nome: %s\t\tSalário: %.2f \n",funcionario.matricula,funcionario.nome,funcionario.salario);
+			}
+	}
+	
+	/*
+	long posicao;
+	while(1)
+	{
+		rewind(arq_funcionario);  //coloco os ponteiros no começo do arquivo
+		rewind(arq_departamento);
+		fread(&departamento,sizeof(t_departamento),1,arq_departamento);
+		if(fread(&departamento,sizeof(t_departamento),1,arq_departamento) == 0)
+			break;
+		while(1){
+			// loop para percorrer o arquivo
+			// fread retorna o número de elementos lidos com sucesso
+			fread(&funcionario,sizeof(t_funcionario),1,arq_funcionario);
+			// se for 0, é porque não há mais elemento, então sai do loop
+			if(fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario) == 0)
+				break;
+			// verifica se o ID é igual
+			if(funcionario.id_departamento == departamento.id_departamento){
+				printf("\nCódigo do departamento: %ld\nNome do departamento: %s\n",departamento.id_departamento, departamento.nome);
+				printf("\nMatrícula: %s\t\t Nome: %s\t\tSalário: %4.f \t: %ld\n\n",funcionario.matricula,funcionario.nome,funcionario.salario,funcionario.id_departamento);
+			}				
+		}
+	}
+	*/
 	fclose(arq_funcionario);
 	fclose(arq_departamento);
-
+	
 	setbuf(stdin, NULL);
 	printf("\nPressione <Enter> para continuar...");
 	scanf("%*c"); // pega o Enter e descarta
 }
 void historicoSalario(){
-
+	system(limpar_tela);
     // rb+ abre para leitura somente
 	FILE *arq_funcionario = fopen("funcionario.bin", "rb");
 	FILE *arq_historicoSalario = fopen("historicoSalario.bin", "rb");
@@ -1103,7 +1165,7 @@ void historicoSalario(){
 	scanf("%*c"); // pega o Enter e descarta
 }
 void gerenteDepartamento(){
-
+	system(limpar_tela);
 	long id_departamento;
     // rb abre para leitura somente
 	FILE *arq_departamento = fopen("departamento.bin", "rb");
@@ -1129,9 +1191,8 @@ void gerenteDepartamento(){
 		printf("\nDigite o ID do departamento: ");
 		scanf("%ld", &id_departamento);
 		posicao = existeDepartamento(arq_departamento, id_departamento);
-		fseek(arq_departamento,posicao*sizeof(departamento),SEEK_SET);
-		fread(&departamento,sizeof(departamento),1,arq_departamento);
-		printf("\nNão passou o IF");
+		fseek(arq_departamento,posicao*sizeof(t_departamento),SEEK_SET);
+		fread(&departamento,sizeof(t_departamento),1,arq_departamento);
 		if (posicao!=-1){
 			posicao = existeFuncionarioID(arq_funcionario, departamento.id_gerente);
 			if(posicao!=-1){
