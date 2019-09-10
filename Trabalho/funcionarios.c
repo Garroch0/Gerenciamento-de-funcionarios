@@ -38,10 +38,10 @@ int iniciar(){
 			folhaPagamento();
 		else if(resp[0] == '8' && resp[1]==NULL)
 			alterarSalario();
-		else if(resp[0] == '9' && resp[1]==NULL)
+		else if(resp[0] == '9' && resp[1]=='/n')
 			relatorioFuncionario();
-		else if(resp[0] == '1' && resp[1] == '0');            //analiso primeiro as opções com dois dígitos depois analiso as opções com só um dígito.
-			//historicoSalario();
+		else if(resp[0] == '1' && resp[1] == '0')        //analiso primeiro as opções com dois dígitos depois analiso as opções com só um dígito.
+			historicoSalario();
         else if(resp[0] && resp[1] == '1')
 			gerenteDepartamento();
 
@@ -417,17 +417,12 @@ void cadastroFuncionario(){
     //valida a data de nascimento.
     do
     {
-		unsigned short int dia,mes,ano;
         setbuf(stdin, NULL);
         printf("\nInsira a data de nascimento no estilo DD/MM/AAAA: ");
         scanf("%11[^\n]%*c", funcionario.dataNascimento);
         //fgets(funcionario.dataNascimento,11,stdin);
-        if (verificaData(funcionario.dataNascimento)){
-			sscanf(funcionario.dataNascimento,"%hu%*c%hu%*c%hu",&dia,&mes,&ano);
-			historico.mes = mes;
-			historico.ano = ano;
+        if (verificaData(funcionario.dataNascimento))
             break;
-		}
         else
             printf("\nData inválida insira novamente");
     }while(1);
@@ -498,6 +493,23 @@ void cadastroFuncionario(){
     setbuf(stdin, NULL);
     printf("\nDigite o email do funcionario: ");
     scanf("%39[^\n]%*c", funcionario.email);
+
+	do
+	{
+		setbuf(stdin, NULL);
+		printf("\nInsira o mês do cadastro: ");
+		scanf("%hu", &historico.mes);
+		if (historico.mes >0 && historico.mes <=12){
+			printf("\nInsira o ano da alteracao: ");
+			scanf("%hu", &historico.ano);
+			if(historico.ano >1960 && historico.ano <2100)
+				break;
+			else
+				printf("\nData inválida insira novamente");
+		}
+		else
+			printf("\nData inválida insira novamente");
+	}while(1);
 
     // uma forma de "limpar" o buffer de entrada
 	fseek(stdin, 0, SEEK_END); // não recomendável o uso
@@ -905,7 +917,7 @@ void alterarGerente(){
 
 void consultaFuncionario(){
 	system(limpar_tela);
-	long id_departamento;
+
     // rb abre para leitura somente
 	FILE *arq_departamento = fopen("departamento.bin", "rb");
 	FILE *arq_funcionario = fopen("funcionario.bin", "rb");
@@ -1064,10 +1076,10 @@ void alterarSalario(){
 	{
 		setbuf(stdin, NULL);
 		printf("\nInsira o mes da alteracao: ");
-		scanf("%hu", historico.mes);
+		scanf("%hu", &historico.mes);
 		if (historico.mes >0 && historico.mes <=12){
 			printf("\nInsira o ano da alteracao: ");
-			scanf("%hu", historico.ano);
+			scanf("%hu", &historico.ano);
 			if(historico.ano >1960 && historico.ano <2100)
 				break;
 		}
@@ -1182,7 +1194,41 @@ void historicoSalario(){
 
 	t_funcionario funcionario;
 	t_historicoSalario historico;
+	rewind(arq_historicoSalario);
+	unsigned short int mesinicial,mesfinal,anoinicial,anofinal;
+	long posicao;
+	do
+	{
+		printf("\nDigite a matricula do funcionario: ");
+		setbuf(stdin, NULL);
+		scanf("%10[^\n]%*c", funcionario.matricula);
+		posicao = existeFuncionario(arq_funcionario, funcionario.matricula);
+		if (posicao!=-1){
+			fseek(arq_funcionario,posicao*sizeof(t_funcionario),SEEK_SET);
+			fread(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+			setbuf(stdin, NULL);
+			printf("Mês início: ");
+			scanf("%hu", &mesinicial);
+			printf("Ano início: ");
+			scanf("%hu", &anoinicial);
+			printf("Mês final: ");
+			scanf("%hu", &mesfinal);
+			printf("Ano final: ");
+			scanf("%hu", &anofinal);
+			while (fread(&historico,sizeof(t_historicoSalario),1,arq_historicoSalario))
+			{
+				fread(&historico,sizeof(t_historicoSalario),1,arq_historicoSalario);
 
+				if(funcionario.id == historico.id_funcionario)
+					if (mesinicial<=historico.mes && anoinicial <= historico.ano)
+						if(mesfinal >= historico.mes && anofinal >= historico.ano)
+							printf("\nMês/Ano: %hu/%hu\tSalário: %.2f",historico.mes, historico.ano, historico.salario);
+			}
+		}
+		else
+			printf("\nFuncionario inexistente");
+		break;
+	} while (1);
 
 	fclose(arq_funcionario);
 	fclose(arq_historicoSalario);
