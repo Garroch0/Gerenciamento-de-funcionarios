@@ -101,12 +101,25 @@ void alterarFuncionario();
 // Função que altera um Departamento de um funcionário buscando pelo ID do departamento.
 void alterarDepartamento();
 
+// Função que altera ou atribui um gerente com uma determinada matrícula.
 void alterarGerente();
+
+//Função que consulta um funcionário com uma determinada matrícula.
 void consultaFuncionario();
+
+//Função que mostra um relatório com a matricula, nome e salario do funcionário.
 void folhaPagamento();
+
+//Função que altera o salário de um funcionário e atualiza o arquivo de HistoricoSalario.
 void alterarSalario();
+
+//Função que mosta um relatório com todos os funcionários de cada departamento.
 void relatorioFuncionario();
+
+//Função que mostra o histórico de salário de um funcionário entre duas datas.
 void historicoSalario();
+
+//Função que mostra o gerente de um departamento.
 void gerenteDepartamento();
 
 
