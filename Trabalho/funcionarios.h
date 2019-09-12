@@ -7,7 +7,7 @@ typedef struct Funcionario{
     char matricula[10];
     char nome[60];
     char dataNascimento[11];
-    char CPF[11];
+    char CPF[12];
     long id_departamento;
     float salario;
     char rua[40];
@@ -64,6 +64,8 @@ int iniciar();
 // Retorna verdadeiro caso dê tudo certo.
 int verificaNome(char *palavra);
 
+//FUnção para verificar se uma string contem somente dígitos.
+//Retorna verdadeiro caso a strin contenha somente dígitos.
 int verificaDigito();
 
 // Função para verificação de datas.
@@ -86,9 +88,15 @@ long existeDepartamento(FILE *arq_departamento, long id_departamento);
 // Retorna a posição da matrícula no arquivo caso dê tudo certo.
 int existeFuncionario(FILE *arq_funcionario, char *mat);
 
+//Função para procurar um funcionário por ID.
 long existeFuncionarioID(FILE *arq_funcionario, long);
 
+//Função para procurar um funcionário com um determinado departamento.
 long existeFuncionarioDep(FILE *arq_funcionario, long);
+
+//Função para corrigir buffer cheio.
+void buff();
+
 // Função que cadastra um departamento no arquivo.
 void cadastroDepartamento();
 
