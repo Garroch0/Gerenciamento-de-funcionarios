@@ -511,7 +511,7 @@ void cadastroFuncionario(){
 		printf("\nInsira o mês do cadastro: ");
 		scanf("%hu", &historico.mes);
 		if (historico.mes >0 && historico.mes <=12){
-			printf("\nInsira o ano da alteracao: ");
+			printf("\nInsira o ano do cadastro: ");
 			scanf("%hu", &historico.ano);
 			if(historico.ano >1960 && historico.ano <2100)
 				break;
@@ -587,6 +587,7 @@ void alterarFuncionario(){
 	long posicao;
 	int alteracao = 0;
 	int sair;
+
 	do
 	{
 		setbuf(stdin, NULL);
@@ -718,7 +719,10 @@ void alterarFuncionario(){
 		}while(sair!=1);
 
 	// escreve no arquivo
-	fwrite(&funcionario, sizeof(t_funcionario), 1, arq_funcionario);
+
+	fseek(arq_funcionario,posicao*sizeof(t_funcionario),SEEK_SET);
+	
+	fwrite(&funcionario,sizeof(t_funcionario), 1, arq_funcionario);
 	// só escreve no arquivo de alteração de departamento caso tenha uma alteração
 	if (alteracao){
 		// aponta para o final do arquivo do histórico e escreve nele
@@ -1161,20 +1165,27 @@ void relatorioFuncionario(){
 		scanf("%*c"); // pega o Enter e descarta
 		return;
 	}
+
 	t_departamento departamento;
 	t_funcionario funcionario;
+
 	int vazio;
+	float salario=0;
+
 	rewind(arq_departamento);
 	while(fread(&departamento,sizeof(t_departamento),1,arq_departamento)==1){
 		printf("_____________________________________________________________________________");
 		printf("\n\nCódigo do departamento: %ld\nNome do departamento: %s\n",departamento.id_departamento, departamento.nome);
 		vazio=1;
+		salario = 0;
 		rewind(arq_funcionario);  //coloco os ponteiros no começo do arquivo
 		while(fread(&funcionario,sizeof(t_funcionario),1,arq_funcionario)==1)
 			if(funcionario.id_departamento == departamento.id_departamento){
-				printf("\nMatrícula: %s\t Nome: %s\t\tSalário: %.2f \n",funcionario.matricula,funcionario.nome,funcionario.salario);
+				salario += funcionario.salario;
+				printf("\nMatrícula: %s\t Nome: %s\t\tSalário: %.2f\n",funcionario.matricula,funcionario.nome,funcionario.salario);
 				vazio=0;
 			}
+		printf("\nTotal de folha de pagamento: %.2f\n", salario);
 		if (vazio)
 			printf("\n\tNenhum funcionário cadastrado no departamento: %s.\n\n",departamento.nome);
 	}

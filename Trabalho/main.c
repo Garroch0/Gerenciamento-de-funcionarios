@@ -8,7 +8,7 @@
 #endif
 
 /*Sistema para gerenciamento de funcionários usando a linguagem C.
-    Autores: Gustavo Garrocho e Leone.
+    Autores: Gustavo Garrocho e Leone Furtado.
     Professor:Wender Magno Cota - Estrutura de Dados I.
     IF SUDESTE MG - Campus Barbacena - 2ºSemestre 2019.*/
 
