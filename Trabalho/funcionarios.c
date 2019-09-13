@@ -721,7 +721,7 @@ void alterarFuncionario(){
 	// escreve no arquivo
 
 	fseek(arq_funcionario,posicao*sizeof(t_funcionario),SEEK_SET);
-	
+
 	fwrite(&funcionario,sizeof(t_funcionario), 1, arq_funcionario);
 	// só escreve no arquivo de alteração de departamento caso tenha uma alteração
 	if (alteracao){
@@ -863,7 +863,7 @@ void alterarGerente(){
 	if(arq_funcionario == NULL)
 	{
 		printf("\nFalha ao abrir arquivo(s) ou ");
-		printf("\nNenhum departamento cadastrado.\n");
+		printf("\nNenhum funcionário cadastrado.\n");
 		printf("\nPressione <Enter> para continuar...");
 		setbuf(stdin, NULL);
 		scanf("%*c"); // pega o Enter e descarta

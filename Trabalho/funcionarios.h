@@ -64,7 +64,7 @@ int iniciar();
 // Retorna verdadeiro caso dê tudo certo.
 int verificaNome(char *palavra);
 
-//FUnção para verificar se uma string contem somente dígitos.
+//Função para verificar se uma string contem somente dígitos.
 //Retorna verdadeiro caso a strin contenha somente dígitos.
 int verificaDigito();
 
